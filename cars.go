@@ -26,7 +26,6 @@ type Specifications struct {
 
 func getCars() (string, error) {
 	url := "http://localhost:3000/api/models"
-	//req, errReq := http.NewRequest("GET", url, nil)
 	resp, err := http.Get(url)
 	if err != nil {
 		return "", err
@@ -138,7 +137,12 @@ func categoriesCars(car string) (Car, error) {
 
 func main() {
 
-	http.HandleFunc("GET /api/models", func(w http.ResponseWriter, r *http.Request) {
+	http.HandleFunc("GET /", homeHandler)
+	http.HandleFunc("GET /models", modelsHandler)
+	http.HandleFunc("GET /manufacturers", manufacturersHandler)
+	http.HandleFunc("GET /categories", categoriesHandler)
+	
+	func homeHandler(w http.ResponseWriter, r *http.Request) {
 		carsData, err := getCars()
 		if err != nil {
 			http.Error(w, "error message", http.StatusInternalServerError)
@@ -146,9 +150,19 @@ func main() {
 		}
 		w.Header().Set("content-type", "application/json")
 		w.Write([]byte(carsData))
-	})
+	}
 
-	http.HandleFunc("GET /api/manufacturers", func(w http.ResponseWriter, r *http.Request) {
+	func modelsHandler(w http.ResponseWriter, r *http.Request) {
+		carsData, err := getCars()
+		if err != nil {
+			http.Error(w, "error message", http.StatusInternalServerError)
+			return
+		}
+		w.Header().Set("content-type", "application/json")
+		w.Write([]byte(carsData))
+	}
+	
+	func manufacturersHandler(w http.ResponseWriter, r *http.Request) {
 		manufacturersData, err := getCarsManufacturer()
 		if err != nil {
 			http.Error(w, "error message", http.StatusInternalServerError)
@@ -156,9 +170,9 @@ func main() {
 		}
 		w.Header().Set("content-type", "application/json")
 		w.Write([]byte(manufacturersData))
-	})
+	}
 
-	http.HandleFunc("GET /api/categories", func(w http.ResponseWriter, r *http.Request) {
+	func categoriesHandler(w http.ResponseWriter, r *http.Request) {
 		categoriesData, err := getCarsCategories()
 		if err != nil {
 			http.Error(w, "error message", http.StatusInternalServerError)
@@ -166,17 +180,17 @@ func main() {
 		}
 		w.Header().Set("content-type", "application/json")
 		w.Write([]byte(categoriesData))
-	})
+	}
 
 	err := http.ListenAndServe(":8080", nil)
 	if err != nil {
 		fmt.Println("Error starting server:", err)
 	}
 
-	resp, err := getCarModel("3")
-	if err != nil {
-		fmt.Println(err)
-	} else {
-		fmt.Println(resp)
-	}
+	// resp, err := getCarModel("3")
+	// if err != nil {
+	// 	fmt.Println(err)
+	// } else {
+	// 	fmt.Println(resp)
+	// }
 }
