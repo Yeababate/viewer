@@ -182,17 +182,19 @@ func landingPage() ([]FrontPage, error){
 
 func homeHandler(w http.ResponseWriter, r *http.Request) {
 		carsData, err := landingPage()
+		//carsData := []FrontPage{{ModelName: "Model", ManuYear: 1000}, {ModelName: "Model2", ManuYear: 1002}}
 		if err != nil {
 			http.Error(w, "error message", http.StatusInternalServerError)
+			fmt.Println(err)
 			return
 		}
-		jsonData,err := json.Marshal(carsData)
+		/*jsonData,err := json.Marshal(carsData)
 		if err != nil {
 			http.Error(w, "error message", http.StatusInternalServerError)
 			return
 		}
 		w.Header().Set("content-type", "application/json")
-		w.Write(jsonData)
+		w.Write(jsonData)*/
 
 		tpl.ExecuteTemplate(w, "home.html", carsData)
 }

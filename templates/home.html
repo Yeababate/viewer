@@ -37,35 +37,22 @@
                     <div class="border">
                         <h3>Display</h3>
                         <div class="car-container">
+
+			{{ range . }}
                             <div class="car-border">
                             
                                 <div class="image-box">
                                 </div>
-                                <div class="text-box">Text 1
+                                <div class="text-box">
+					<span>Car</span>
+					<span>{{ .ModelName }}</span>
+					<span>{{ .ManuYear }}</span>
+
                                 </div>
                             
                             </div>
 
-                            <div class="car-border">
-                                <div class="image-box">
-                                </div>
-                                <div class="text-box">Text 2
-                                </div>
-                            </div>
-
-                            <div class="car-border">
-                                <div class="image-box">
-                                </div>
-                                <div class="text-box">Text 3
-                                </div>
-                            </div>
-
-                            <div class="car-border">
-                                <div class="image-box">
-                                </div>
-                                <div class="text-box">Text 4
-                                </div>
-                            </div>
+			{{ end }}
                         </div>
                     </div>
                 </section>
