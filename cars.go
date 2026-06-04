@@ -149,6 +149,7 @@ func categoriesCars(car string) (Catagories, error) {
 type FrontPage struct {
 	ModelName string 
 	ManuYear int
+	Image string
 }
 
 func landingPage() ([]FrontPage, error){
@@ -173,6 +174,7 @@ func landingPage() ([]FrontPage, error){
 		landing = append(landing, FrontPage{
 			ModelName: car.Name,
 			ManuYear: car.Year,
+			Image: car.Image,
 		})
 	}
 	
@@ -182,10 +184,8 @@ func landingPage() ([]FrontPage, error){
 
 func homeHandler(w http.ResponseWriter, r *http.Request) {
 		carsData, err := landingPage()
-		//carsData := []FrontPage{{ModelName: "Model", ManuYear: 1000}, {ModelName: "Model2", ManuYear: 1002}}
 		if err != nil {
 			http.Error(w, "error message", http.StatusInternalServerError)
-			fmt.Println(err)
 			return
 		}
 		/*jsonData,err := json.Marshal(carsData)
