@@ -193,7 +193,9 @@ func homeHandler(w http.ResponseWriter, r *http.Request) {
 		}
 		w.Header().Set("content-type", "application/json")
 		w.Write(jsonData)
-	}
+
+		tpl.ExecuteTemplate(w, "home.html", carsData)
+}
 
 func allmodelsHandler(w http.ResponseWriter, r *http.Request) {
 		carsData, err := getCars()
@@ -273,7 +275,7 @@ func categoriesHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 
-func main() {
+/*func main() {
 
 	http.HandleFunc("GET /", homeHandler)
 	http.HandleFunc("GET /models/", allmodelsHandler)
@@ -288,4 +290,4 @@ func main() {
 		fmt.Println("Error starting server:", err)
 	}
 
-}
+}*/
