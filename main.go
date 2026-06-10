@@ -17,7 +17,7 @@ func main(){
 
 	http.HandleFunc("/", homeHandler) 
 	fmt.Println("server is running")
-	http.HandleFunc("/{id}", AllcarDetail)
+	http.HandleFunc("GET /car/{id}", AllcarDetail)
 	http.HandleFunc("GET /models/", allmodelsHandler)
 	http.HandleFunc("GET /models/{id}", modelsHandler)
 	http.HandleFunc("GET /manufacturers", allManufacturersHandler)

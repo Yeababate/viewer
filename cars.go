@@ -154,6 +154,7 @@ func categoriesCars(car string) (Catagories, error) {
 }
 
 type FrontPage struct {
+	Id int
 	ModelName string 
 	ManuYear int
 	Image string
@@ -179,6 +180,7 @@ func landingPage() ([]FrontPage, error){
 	var landing []FrontPage
 	for _, car := range model{
 		landing = append(landing, FrontPage{
+			Id: car.Id,
 			ModelName: car.Name,
 			ManuYear: car.Year,
 			Image: car.Image,
@@ -191,17 +193,14 @@ func landingPage() ([]FrontPage, error){
 
 func homeHandler(w http.ResponseWriter, r *http.Request) {
 		carsData, err := landingPage()
+		if r.URL.Path != "/" {
+       		http.NotFound(w, r)
+        	return
+    	}
 		if err != nil {
 			http.Error(w, "error message", http.StatusInternalServerError)
 			return
 		}
-		/*jsonData,err := json.Marshal(carsData)
-		if err != nil {
-			http.Error(w, "error message", http.StatusInternalServerError)
-			return
-		}
-		w.Header().Set("content-type", "application/json")
-		w.Write(jsonData)*/
 
 		tpl.ExecuteTemplate(w, "home.html", carsData)
 }
