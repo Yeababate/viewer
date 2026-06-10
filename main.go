@@ -18,12 +18,13 @@ func main(){
 	http.HandleFunc("/", homeHandler) 
 	fmt.Println("server is running")
 	http.HandleFunc("GET /car/{id}", AllcarDetail)
-	http.HandleFunc("GET /models/", allmodelsHandler)
-	http.HandleFunc("GET /models/{id}", modelsHandler)
-	http.HandleFunc("GET /manufacturers", allManufacturersHandler)
-	http.HandleFunc("GET /manufacturers/{id}", manufacturersHandler)
-	http.HandleFunc("GET /categories", allCategoriesHandler)
-	http.HandleFunc("GET /categories/{id}", categoriesHandler)
+	
+	// http.HandleFunc("GET /models/", allmodelsHandler)
+	// http.HandleFunc("GET /models/{id}", modelsHandler)
+	// http.HandleFunc("GET /manufacturers", allManufacturersHandler)
+	// http.HandleFunc("GET /manufacturers/{id}", manufacturersHandler)
+	// http.HandleFunc("GET /categories", allCategoriesHandler)
+	// http.HandleFunc("GET /categories/{id}", categoriesHandler)
 	
 	err := http.ListenAndServe(":8080", nil)
 	if err != nil {
