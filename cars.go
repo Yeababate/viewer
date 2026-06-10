@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"io"
 	"encoding/json"
+	"fmt"
 )
 
 type Car struct {
@@ -35,6 +36,12 @@ type Catagories struct {
 	Id int `json: "id"`
 	Name string `json: "name"`
 }
+
+type CarDetail struct {
+        Car          Car
+        Manufacturer Manufacturers
+        Category     Catagories
+    }
 
 func getCars() (string, error) {
 	url := "http://localhost:3000/api/models"
@@ -276,20 +283,30 @@ func categoriesHandler(w http.ResponseWriter, r *http.Request) {
 	w.Write(jsonData)
 }
 
-
-/*func main() {
-
-	http.HandleFunc("GET /", homeHandler)
-	http.HandleFunc("GET /models/", allmodelsHandler)
-	http.HandleFunc("GET /models/{id}", modelsHandler)
-	http.HandleFunc("GET /manufacturers", allManufacturersHandler)
-	http.HandleFunc("GET /manufacturers/{id}", manufacturersHandler)
-	http.HandleFunc("GET /categories", allCategoriesHandler)
-	http.HandleFunc("GET /categories/{id}", categoriesHandler)
-	
-	err := http.ListenAndServe(":8080", nil)
+func AllcarDetail(w http.ResponseWriter, r *http.Request){
+	id := r.PathValue("id")
+	car ,err := getCarModel(id)
 	if err != nil {
-		fmt.Println("Error starting server:", err)
+		http.Error(w, "error getting car", http.StatusInternalServerError)
+		return
 	}
+	manufacturer,err:= manufacturerCars(fmt.Sprintf("%d", car.ManufacturerID))
+	if err != nil {
+		http.Error(w, "error getting manufacturer", http.StatusInternalServerError)
+		return
+	}
+	category,err:= categoriesCars(fmt.Sprintf("%d", car.CategoryID))
+	if err != nil {
+		http.Error(w, "error getting category", http.StatusInternalServerError)
+		return
+	}
+	
+    detail := CarDetail{
+        Car:          car,
+        Manufacturer: manufacturer,
+        Category:     category,
+    }
+	tpl.ExecuteTemplate(w, "car.html", detail) 
+}
 
-}*/
+
