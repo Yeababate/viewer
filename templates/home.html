@@ -16,7 +16,7 @@
 
         <nav class="heading">
                 <ol>
-                        <li class="heading"><a href="#">Home</a></li>
+                        <li class="heading"><a href="/home">Home</a></li>
                         <li class="heading"><a href="#">Model Details</a></li>
                         <li class="heading"><a href="#">Compare Cars</a></li>
                 </ol>
@@ -29,9 +29,17 @@
                     <p class="subheading">A tagline of some kind</p>
                 </section>
                        
-                <section> 
+                <search> 
+		     <form action="/">
+		          <div>
+			       <input type="search" id="carSearch" name="q" placeholder="Search for a car" aria-label="Search for a car" size="30" />
+			       <button>Search</button>
+			  </div>
+		     </form>
+		
+			   
                      <!-- search and filter functionality-->
-                </section>
+                </search>
 
                 <section class="car-display">
                     <div class="border">

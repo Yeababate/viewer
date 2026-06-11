@@ -1,10 +1,11 @@
 package main
 
 import (
-	//"fmt"
+	"fmt"
 	"net/http"
 	"io"
 	"encoding/json"
+	"strings"
 )
 
 type Car struct {
@@ -182,12 +183,31 @@ func landingPage() ([]FrontPage, error){
 	return landing, nil
 }
 
+
 func homeHandler(w http.ResponseWriter, r *http.Request) {
-		carsData, err := landingPage()
-		if err != nil {
-			http.Error(w, "error message", http.StatusInternalServerError)
-			return
+	carsData, err := landingPage()
+	if err != nil {
+		http.Error(w, "error message", http.StatusInternalServerError)
+		return
+	}
+
+	if r.FormValue("q") != "" {
+		foundCar := []FrontPage{}
+		searchTerm := strings.ToLower(r.FormValue("q"))
+		var name string
+		for _,car := range carsData {
+			name = strings.ToLower(car.ModelName)		
+			if strings.Contains(name, searchTerm) {
+				foundCar = append(foundCar, car)	
+			}
 		}
+		if len(foundCar)<1 {
+			http.Error(w, fmt.Sprintf("searchTerm: %v\nname: %v", searchTerm, name), http.StatusInternalServerError)
+			return
+		} else {
+			carsData = foundCar
+		}
+	}
 		/*jsonData,err := json.Marshal(carsData)
 		if err != nil {
 			http.Error(w, "error message", http.StatusInternalServerError)
@@ -196,7 +216,7 @@ func homeHandler(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("content-type", "application/json")
 		w.Write(jsonData)*/
 
-		tpl.ExecuteTemplate(w, "home.html", carsData)
+	tpl.ExecuteTemplate(w, "home.html", carsData)
 }
 
 func allmodelsHandler(w http.ResponseWriter, r *http.Request) {
