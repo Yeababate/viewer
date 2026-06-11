@@ -43,6 +43,8 @@ type CarDetail struct {
         Category     Catagories
     }
 
+var CarsData []Car
+
 // func getCars() (string, error) {
 // 	url := "http://localhost:3000/api/models"
 // 	resp, err := http.Get(url)
@@ -160,7 +162,7 @@ type FrontPage struct {
 	Image string
 }
 
-func landingPage() ([]FrontPage, error){
+func landingPage() ([]Car, error){
 	url := "http://localhost:3000/api/models"
 	resp, errResp := http.Get(url)
 	if errResp != nil {
@@ -177,7 +179,7 @@ func landingPage() ([]FrontPage, error){
 	if errJson != nil {
 		return nil, errJson
 	}
-	var landing []FrontPage
+/*	var landing []FrontPage
 	for _, car := range model{
 		landing = append(landing, FrontPage{
 			Id: car.Id,
@@ -185,36 +187,45 @@ func landingPage() ([]FrontPage, error){
 			ManuYear: car.Year,
 			Image: car.Image,
 		})
-	}
-	
+	}*/
 
-	return landing, nil
+	return model, nil
 }
 
+func getSearchedCar(term string) ([]Car, error) {
+	searchTerm := strings.ToLower(term)
+	var foundCar []Car
+	var name string
+	for _,car := range CarsData {
+		name = strings.ToLower(car.Name)
+		if strings.Contains(name, searchTerm) {
+			foundCar = append(foundCar, car)
+		}
+	}
+	if len(foundCar)<1 {
+		return []Car{}, fmt.Errorf("car not found")
+	} 
+	
+	return foundCar, nil
+
+}
 
 func homeHandler(w http.ResponseWriter, r *http.Request) {
-	carsData, err := landingPage()
+	var err error
+	CarsData, err = landingPage()
+	landingPageCars := CarsData
 	if err != nil {
 		http.Error(w, "error message", http.StatusInternalServerError)
 		return
 	}
 
 	if r.FormValue("q") != "" {
-		foundCar := []FrontPage{}
-		searchTerm := strings.ToLower(r.FormValue("q"))
-		var name string
-		for _,car := range carsData {
-			name = strings.ToLower(car.ModelName)		
-			if strings.Contains(name, searchTerm) {
-				foundCar = append(foundCar, car)	
-			}
-		}
-		if len(foundCar)<1 {
-			http.Error(w, fmt.Sprintf("searchTerm: %v\nname: %v", searchTerm, name), http.StatusInternalServerError)
+		landingPageCars, err = getSearchedCar(strings.ToLower(r.FormValue("q")))
+		if err != nil {
+			http.Error(w, "car not found", http.StatusInternalServerError)
 			return
-		} else {
-			carsData = foundCar
 		}
+
 	} else {
 		if r.URL.Path != "/" {
 			http.NotFound(w,r)
@@ -229,33 +240,56 @@ func homeHandler(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("content-type", "application/json")
 		w.Write(jsonData)*/
 
-	tpl.ExecuteTemplate(w, "home.html", carsData)
+	tpl.ExecuteTemplate(w, "home.html", landingPageCars)
 }
 
 func AllcarDetail(w http.ResponseWriter, r *http.Request){
-	id := r.PathValue("id")
-	car ,err := getCarModel(id)
-	if err != nil {
-		http.Error(w, "error getting car", http.StatusInternalServerError)
-		return
+	var carsFound []Car
+	var err error
+	if r.FormValue("q") != "" {
+		carsFound, err = getSearchedCar(strings.ToLower(r.FormValue("q")))
+		if err != nil {
+			http.Error(w, "car not found", http.StatusInternalServerError)
+			return
+		}
+		
+	} else {
+		id := r.PathValue("id")
+		car, err := getCarModel(id)
+		carsFound = append([]Car{}, car)
+		if err != nil {
+			http.Error(w, "error getting car", http.StatusInternalServerError)
+			return
+		}
 	}
-	manufacturer,err:= manufacturerCars(fmt.Sprintf("%d", car.ManufacturerID))
+
+	cars := []CarDetail{}
+	var detail CarDetail
+
+	for i := range carsFound {
+	manufacturer,err:= manufacturerCars(fmt.Sprintf("%d", carsFound[i].ManufacturerID))
 	if err != nil {
 		http.Error(w, "error getting manufacturer", http.StatusInternalServerError)
 		return
 	}
-	category,err:= categoriesCars(fmt.Sprintf("%d", car.CategoryID))
+	category,err:= categoriesCars(fmt.Sprintf("%d", carsFound[i].CategoryID))
 	if err != nil {
 		http.Error(w, "error getting category", http.StatusInternalServerError)
 		return
 	}
 	
-    detail := CarDetail{
-        Car:          car,
+    detail = CarDetail{
+        Car:          carsFound[i],
         Manufacturer: manufacturer,
         Category:     category,
     }
-	tpl.ExecuteTemplate(w, "car.html", detail) 
+
+
+    cars = append(cars, detail)
+    }
+
+    fmt.Printf("cars: %v", cars)
+	tpl.ExecuteTemplate(w, "car.html", cars)
 }
 
 // func allmodelsHandler(w http.ResponseWriter, r *http.Request) {
