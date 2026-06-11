@@ -39,10 +39,11 @@
                         <div class="car-container">
 
 			{{ range . }}
+                        <a href="/car/{{ .Id }}">
                             <div class="car-border">
                             
                                 <div class="image-box">
-					<span>{{ .Image }}</span>
+				        <img src="/static/img/{{ .Image }}" alt="{{ .ModelName }}">
                                 </div>
                                 <div class="text-box">
 					<span>Car</span>
@@ -53,7 +54,7 @@
                                 </div>
                             
                             </div>
-
+                        </a>       
 			{{ end }}
                         </div>
                     </div>

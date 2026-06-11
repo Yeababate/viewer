@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"io"
 	"encoding/json"
+	"fmt"
 )
 
 type Car struct {
@@ -36,21 +37,27 @@ type Catagories struct {
 	Name string `json: "name"`
 }
 
-func getCars() (string, error) {
-	url := "http://localhost:3000/api/models"
-	resp, err := http.Get(url)
-	if err != nil {
-		return "", err
-	}
+type CarDetail struct {
+        Car          Car
+        Manufacturer Manufacturers
+        Category     Catagories
+    }
 
-	body, errRead := io.ReadAll(resp.Body)
-	if errRead != nil {
-		return "", errRead
-	}
+// func getCars() (string, error) {
+// 	url := "http://localhost:3000/api/models"
+// 	resp, err := http.Get(url)
+// 	if err != nil {
+// 		return "", err
+// 	}
 
-	carsData := string(body)  // why chage to string because we're changing it back 
-	return carsData, nil
-}
+// 	body, errRead := io.ReadAll(resp.Body)
+// 	if errRead != nil {
+// 		return "", errRead
+// 	}
+
+// 	carsData := string(body)  // why chage to string because we're changing it back 
+// 	return carsData, nil
+// }
 
 func getCarModel(id string) (Car, error) {
 	url := "http://localhost:3000/api/models/" + id
@@ -73,20 +80,20 @@ func getCarModel(id string) (Car, error) {
 	return model, nil
 }
 
-func getCarsManufacturer() ([]byte, error) {
-	url := "http://localhost:3000/api/manufacturers/"
-	resp, err := http.Get(url)
-	if err != nil {
-		return nil, err
-	}
+// func getCarsManufacturer() ([]byte, error) {
+// 	url := "http://localhost:3000/api/manufacturers/"
+// 	resp, err := http.Get(url)
+// 	if err != nil {
+// 		return nil, err
+// 	}
 
-	body, errRead := io.ReadAll(resp.Body)
-	if errRead != nil {
-		return nil, errRead
-	}
+// 	body, errRead := io.ReadAll(resp.Body)
+// 	if errRead != nil {
+// 		return nil, errRead
+// 	}
 
-	return body, nil
-}
+// 	return body, nil
+// }
 
 func manufacturerCars(car string) (Manufacturers, error) {
 	url := "http://localhost:3000/api/manufacturers/" + car
@@ -109,21 +116,21 @@ func manufacturerCars(car string) (Manufacturers, error) {
 	return manufacturer, nil
 }
 
-func getCarsCategories() (string, error) {
-	url := "http://localhost:3000/api/categories"
-	resp, err := http.Get(url)
-	if err != nil {
-		return "", err
-	}
+// func getCarsCategories() (string, error) {
+// 	url := "http://localhost:3000/api/categories"
+// 	resp, err := http.Get(url)
+// 	if err != nil {
+// 		return "", err
+// 	}
 
-	body, errRead := io.ReadAll(resp.Body)
-	if errRead != nil {
-		return "", errRead
-	}
+// 	body, errRead := io.ReadAll(resp.Body)
+// 	if errRead != nil {
+// 		return "", errRead
+// 	}
 
-	carsData := string(body)
-	return carsData, nil
-}
+// 	carsData := string(body)
+// 	return carsData, nil
+// }
 
 func categoriesCars(car string) (Catagories, error) {
 	url := "http://localhost:3000/api/categories/" + car
@@ -147,6 +154,7 @@ func categoriesCars(car string) (Catagories, error) {
 }
 
 type FrontPage struct {
+	Id int
 	ModelName string 
 	ManuYear int
 	Image string
@@ -172,6 +180,7 @@ func landingPage() ([]FrontPage, error){
 	var landing []FrontPage
 	for _, car := range model{
 		landing = append(landing, FrontPage{
+			Id: car.Id,
 			ModelName: car.Name,
 			ManuYear: car.Year,
 			Image: car.Image,
@@ -184,112 +193,119 @@ func landingPage() ([]FrontPage, error){
 
 func homeHandler(w http.ResponseWriter, r *http.Request) {
 		carsData, err := landingPage()
+		if r.URL.Path != "/" {
+       		http.NotFound(w, r)
+        	return
+    	}
 		if err != nil {
 			http.Error(w, "error message", http.StatusInternalServerError)
 			return
 		}
-		/*jsonData,err := json.Marshal(carsData)
-		if err != nil {
-			http.Error(w, "error message", http.StatusInternalServerError)
-			return
-		}
-		w.Header().Set("content-type", "application/json")
-		w.Write(jsonData)*/
 
 		tpl.ExecuteTemplate(w, "home.html", carsData)
 }
 
-func allmodelsHandler(w http.ResponseWriter, r *http.Request) {
-		carsData, err := getCars()
-		if err != nil {
-			http.Error(w, "error message", http.StatusInternalServerError)
-			return
-		}
-		w.Header().Set("content-type", "application/json")
-		w.Write([]byte(carsData))
-	}
-
-func modelsHandler(w http.ResponseWriter, r *http.Request) {
-		id := r.PathValue("id")
-		carsData, err := getCarModel(id)
-		if err != nil {
-			http.Error(w, "error message", http.StatusInternalServerError)
-			return
-		}
-		jsonData, err := json.Marshal(carsData)
-		if err != nil {
-			http.Error(w, "error message", http.StatusInternalServerError)
-			return
-		}
-		w.Header().Set("content-type", "application/json")
-		w.Write(jsonData)
-	}
-	
-func allManufacturersHandler(w http.ResponseWriter, r *http.Request) {
-		manufacturersData, err := getCarsManufacturer()
-		if err != nil {
-			http.Error(w, "error message", http.StatusInternalServerError)
-			return
-		}
-		w.Header().Set("content-type", "application/json")
-		w.Write(manufacturersData)
-	}
-
-func manufacturersHandler(w http.ResponseWriter, r *http.Request) {
-		id := r.PathValue("id")
-		manufacturersData, err := manufacturerCars(id)
-		if err != nil {
-			http.Error(w, "error message", http.StatusInternalServerError)
-			return
-		}
-		jsonData, err := json.Marshal(manufacturersData)
-		if err != nil {
-			http.Error(w, "error message", http.StatusInternalServerError)
-			return
-		}
-		w.Header().Set("content-type", "application/json")
-		w.Write(jsonData)
-	}
-
-func allCategoriesHandler(w http.ResponseWriter, r *http.Request) {
-		categoriesData, err := getCarsCategories()
-		if err != nil {
-			http.Error(w, "error message", http.StatusInternalServerError)
-			return
-		}
-		w.Header().Set("content-type", "application/json")
-		w.Write([]byte(categoriesData))
-	}
-func categoriesHandler(w http.ResponseWriter, r *http.Request) {
+func AllcarDetail(w http.ResponseWriter, r *http.Request){
 	id := r.PathValue("id")
-	categoriesData, err := categoriesCars(id)
+	car ,err := getCarModel(id)
 	if err != nil {
-			http.Error(w, "error message", http.StatusInternalServerError)
-			return
-		}
-	jsonData,err := json.Marshal(categoriesData)
-	if err != nil {
-		http.Error(w, "error message", http.StatusInternalServerError)
+		http.Error(w, "error getting car", http.StatusInternalServerError)
 		return
 	}
-	w.Header().Set("content-type", "application/json")
-	w.Write(jsonData)
+	manufacturer,err:= manufacturerCars(fmt.Sprintf("%d", car.ManufacturerID))
+	if err != nil {
+		http.Error(w, "error getting manufacturer", http.StatusInternalServerError)
+		return
+	}
+	category,err:= categoriesCars(fmt.Sprintf("%d", car.CategoryID))
+	if err != nil {
+		http.Error(w, "error getting category", http.StatusInternalServerError)
+		return
+	}
+	
+    detail := CarDetail{
+        Car:          car,
+        Manufacturer: manufacturer,
+        Category:     category,
+    }
+	tpl.ExecuteTemplate(w, "car.html", detail) 
 }
 
+// func allmodelsHandler(w http.ResponseWriter, r *http.Request) {
+// 		carsData, err := getCars()
+// 		if err != nil {
+// 			http.Error(w, "error message", http.StatusInternalServerError)
+// 			return
+// 		}
+// 		w.Header().Set("content-type", "application/json")
+// 		w.Write([]byte(carsData))
+// 	}
 
-/*func main() {
-
-	http.HandleFunc("GET /", homeHandler)
-	http.HandleFunc("GET /models/", allmodelsHandler)
-	http.HandleFunc("GET /models/{id}", modelsHandler)
-	http.HandleFunc("GET /manufacturers", allManufacturersHandler)
-	http.HandleFunc("GET /manufacturers/{id}", manufacturersHandler)
-	http.HandleFunc("GET /categories", allCategoriesHandler)
-	http.HandleFunc("GET /categories/{id}", categoriesHandler)
+// func modelsHandler(w http.ResponseWriter, r *http.Request) {
+// 		id := r.PathValue("id")
+// 		carsData, err := getCarModel(id)
+// 		if err != nil {
+// 			http.Error(w, "error message", http.StatusInternalServerError)
+// 			return
+// 		}
+// 		jsonData, err := json.Marshal(carsData)
+// 		if err != nil {
+// 			http.Error(w, "error message", http.StatusInternalServerError)
+// 			return
+// 		}
+// 		w.Header().Set("content-type", "application/json")
+// 		w.Write(jsonData)
+// 	}
 	
-	err := http.ListenAndServe(":8080", nil)
-	if err != nil {
-		fmt.Println("Error starting server:", err)
-	}
+// func allManufacturersHandler(w http.ResponseWriter, r *http.Request) {
+// 		manufacturersData, err := getCarsManufacturer()
+// 		if err != nil {
+// 			http.Error(w, "error message", http.StatusInternalServerError)
+// 			return
+// 		}
+// 		w.Header().Set("content-type", "application/json")
+// 		w.Write(manufacturersData)
+// 	}
 
-}*/
+// func manufacturersHandler(w http.ResponseWriter, r *http.Request) {
+// 		id := r.PathValue("id")
+// 		manufacturersData, err := manufacturerCars(id)
+// 		if err != nil {
+// 			http.Error(w, "error message", http.StatusInternalServerError)
+// 			return
+// 		}
+// 		jsonData, err := json.Marshal(manufacturersData)
+// 		if err != nil {
+// 			http.Error(w, "error message", http.StatusInternalServerError)
+// 			return
+// 		}
+// 		w.Header().Set("content-type", "application/json")
+// 		w.Write(jsonData)
+// 	}
+
+// func allCategoriesHandler(w http.ResponseWriter, r *http.Request) {
+// 		categoriesData, err := getCarsCategories()
+// 		if err != nil {
+// 			http.Error(w, "error message", http.StatusInternalServerError)
+// 			return
+// 		}
+// 		w.Header().Set("content-type", "application/json")
+// 		w.Write([]byte(categoriesData))
+// 	}
+// func categoriesHandler(w http.ResponseWriter, r *http.Request) {
+// 	id := r.PathValue("id")
+// 	categoriesData, err := categoriesCars(id)
+// 	if err != nil {
+// 			http.Error(w, "error message", http.StatusInternalServerError)
+// 			return
+// 		}
+// 	jsonData,err := json.Marshal(categoriesData)
+// 	if err != nil {
+// 		http.Error(w, "error message", http.StatusInternalServerError)
+// 		return
+// 	}
+// 	w.Header().Set("content-type", "application/json")
+// 	w.Write(jsonData)
+// }
+
+

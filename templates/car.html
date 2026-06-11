@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ .Car.Name }}</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <div class="top-bar">
+        <header>
+            <h1>Find A Car</h1>
+        </header>
+        <nav class="heading">
+            <ol>
+                <li><a href="/">Home</a></li>
+            </ol>
+        </nav>
+    </div>
+
+    <main>
+        <div class="car-detail">
+            <img src="/static/img/{{ .Car.Image }}" alt="{{ .Car.Name }}">
+            <h2>{{ .Car.Name }}</h2>
+            <p>Year: {{ .Car.Year }}</p>
+
+            <h3>Specifications</h3>
+            <p>Engine: {{ .Car.Specifications.Engine }}</p>
+            <p>Horsepower: {{ .Car.Specifications.Horsepower }}</p>
+            <p>Transmission: {{ .Car.Specifications.Transmission }}</p>
+            <p>Drivetrain: {{ .Car.Specifications.Drivetrain }}</p>
+
+            <h3>Manufacturer</h3>
+            <p>Name: {{ .Manufacturer.Name }}</p>
+            <p>Country: {{ .Manufacturer.Country }}</p>
+            <p>Founded: {{ .Manufacturer.FoundingYear }}</p>
+
+            <h3>Category</h3>
+            <p>{{ .Category.Name }}</p>
+        </div>
+    </main>
+</body>
+</html>
