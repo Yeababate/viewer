@@ -152,6 +152,8 @@ type FrontPage struct {
 	Image string
 }
 
+var CarsData []FrontPage
+
 func landingPage() ([]FrontPage, error){
 	url := "http://localhost:3000/api/models"
 	resp, errResp := http.Get(url)
@@ -183,7 +185,8 @@ func landingPage() ([]FrontPage, error){
 }
 
 func homeHandler(w http.ResponseWriter, r *http.Request) {
-		carsData, err := landingPage()
+		var err error
+		CarsData, err = landingPage()
 		if err != nil {
 			http.Error(w, "error message", http.StatusInternalServerError)
 			return
@@ -196,7 +199,7 @@ func homeHandler(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("content-type", "application/json")
 		w.Write(jsonData)*/
 
-		tpl.ExecuteTemplate(w, "home.html", carsData)
+		tpl.ExecuteTemplate(w, "home.html", CarsData)
 }
 
 func allmodelsHandler(w http.ResponseWriter, r *http.Request) {

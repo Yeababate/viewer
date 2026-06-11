@@ -16,6 +16,9 @@ func main(){
 	tpl,_ = tpl.ParseGlob("templates/*html")
 
 	http.HandleFunc("/", homeHandler) 
+
+	//TEST
+	http.HandleFunc("/test", testHandler)
 	fmt.Println("server is running")
 	// http.HandleFunc("/cars/models", carModels)
 	// http.HandleFunc("/cars/manufacturers", carManufacturers)
