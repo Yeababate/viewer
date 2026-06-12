@@ -6,6 +6,7 @@ import (
 	"io"
 	"encoding/json"
 	"strings"
+	"strconv"
 )
 
 type Car struct {
@@ -193,15 +194,37 @@ func landingPage() ([]Car, error){
 }
 
 func getSearchedCar(term string) ([]Car, error) {
-	searchTerm := strings.ToLower(term)
+	//strings.Fields() splits strings around whitespace chars (incl mult spaces, tabs, newlines)
+	searchTerms := strings.Fields(strings.ToLower(term))
+	
 	//[]Car in case more than one car is found by search
 	var carsFound []Car
 	var name string
+	var year string
+	if len(searchTerms) == 1 {
+		for _,car := range CarsData {
+			name = strings.ToLower(car.Name)
+			year = strconv.Itoa(car.Year)
+			if strings.Contains(name, term)||strings.Contains(year,term) {
+				carsFound = append(carsFound, car)
+			}
+		}
+	} else {
 	for _,car := range CarsData {
 		name = strings.ToLower(car.Name)
-		if strings.Contains(name, searchTerm) {
+		year = strconv.Itoa(car.Year)
+		matchCount := 0
+		for _,term := range searchTerms {
+			if strings.Contains(name, term) || strings.Contains(year,term) {
+				matchCount += 1
+			}
+			
+		}
+		if matchCount == 2 {
 			carsFound = append(carsFound, car)
 		}
+		matchCount = 0
+	}
 	}
 	if len(carsFound)<1 {
 		return []Car{}, fmt.Errorf("car not found")
