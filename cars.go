@@ -5,59 +5,63 @@ import (
 	"net/http"
 	"io"
 	"encoding/json"
-	"fmt"
+	"strconv"
 )
 
 type Car struct {
-	Id int `json: "id"`
-	Name string `json: "name"`
-	ManufacturerID int `json: manufacturerId"` 
-	CategoryID int `json: "categoryId"`
-	Year int `json: "year"`
-	Specifications Specifications `json: "specifications"`
-	Image string `json: "image"`
+	Id int `json:"id"`
+	Name string `json:"name"`
+	ManufacturerID int `json:"manufacturerId"` 
+	CategoryID int `json:"categoryId"`
+	Year int `json:"year"`
+	Specifications Specifications `json:"specifications"`
+	Image string `json:"image"`
 }
 
 type Specifications struct {
-	Engine string `json: "engine"`
-	Horsepower int `json: "horsepower"`
-	Transmission string `json: "transmission"`
-	Drivetrain string `json: "drivetrain"`
+	Engine string `json:"engine"`
+	Horsepower int `json:"horsepower"`
+	Transmission string `json:"transmission"`
+	Drivetrain string `json:"drivetrain"`
 }
 
 type Manufacturers struct {
-	Id int `json: "id"`
-	Name string `json: "name"`
-	Country string `json: "country"`
-	FoundingYear int `json: FoundingYear`
+	Id int `json:"id"`
+	Name string `json:"name"`
+	Country string `json:"country"`
+	FoundingYear int `json:"FoundingYear"`
 }
 
-type Catagories struct {
-	Id int `json: "id"`
-	Name string `json: "name"`
+type Categories struct {
+	Id int `json:"id"`
+	Name string `json:"name"`
 }
 
 type CarDetail struct {
         Car          Car
         Manufacturer Manufacturers
-        Category     Catagories
+        Category     Categories
     }
 
-// func getCars() (string, error) {
-// 	url := "http://localhost:3000/api/models"
-// 	resp, err := http.Get(url)
-// 	if err != nil {
-// 		return "", err
-// 	}
+func getCars() ([]Car, error) {
+	url := "http://localhost:3000/api/models"
+	resp, err := http.Get(url)
+	if err != nil {
+		return nil, err
+	}
 
-// 	body, errRead := io.ReadAll(resp.Body)
-// 	if errRead != nil {
-// 		return "", errRead
-// 	}
+	body, errRead := io.ReadAll(resp.Body)
+	if errRead != nil {
+		return nil, errRead
+	}
+	var cars []Car
+    err = json.Unmarshal(body, &cars)
+    if err != nil {
+        return nil, err
+    }
 
-// 	carsData := string(body)  // why chage to string because we're changing it back 
-// 	return carsData, nil
-// }
+	return cars, nil
+}
 
 func getCarModel(id string) (Car, error) {
 	url := "http://localhost:3000/api/models/" + id
@@ -80,21 +84,6 @@ func getCarModel(id string) (Car, error) {
 	return model, nil
 }
 
-// func getCarsManufacturer() ([]byte, error) {
-// 	url := "http://localhost:3000/api/manufacturers/"
-// 	resp, err := http.Get(url)
-// 	if err != nil {
-// 		return nil, err
-// 	}
-
-// 	body, errRead := io.ReadAll(resp.Body)
-// 	if errRead != nil {
-// 		return nil, errRead
-// 	}
-
-// 	return body, nil
-// }
-
 func manufacturerCars(car string) (Manufacturers, error) {
 	url := "http://localhost:3000/api/manufacturers/" + car
 	resp, errResp := http.Get(url)
@@ -116,38 +105,22 @@ func manufacturerCars(car string) (Manufacturers, error) {
 	return manufacturer, nil
 }
 
-// func getCarsCategories() (string, error) {
-// 	url := "http://localhost:3000/api/categories"
-// 	resp, err := http.Get(url)
-// 	if err != nil {
-// 		return "", err
-// 	}
-
-// 	body, errRead := io.ReadAll(resp.Body)
-// 	if errRead != nil {
-// 		return "", errRead
-// 	}
-
-// 	carsData := string(body)
-// 	return carsData, nil
-// }
-
-func categoriesCars(car string) (Catagories, error) {
+func categoriesCars(car string) (Categories, error) {
 	url := "http://localhost:3000/api/categories/" + car
 	resp, errResp := http.Get(url)
 	if errResp != nil {
-		return Catagories{}, errResp
+		return Categories{}, errResp
 	}
 
 	body, errRead := io.ReadAll(resp.Body)
 	if errRead != nil {
-		return Catagories{}, errRead
+		return Categories{}, errRead
 	}
 
-	var category Catagories
+	var category Categories
 	errJson := json.Unmarshal(body, &category)
 	if errJson != nil {
-		return Catagories{}, errJson
+		return Categories{}, errJson
 	}
 
 	return category, nil
@@ -191,18 +164,46 @@ func landingPage() ([]FrontPage, error){
 	return landing, nil
 }
 
+type HomeData struct {
+	Cars []FrontPage
+	Manufacturers []Manufacturers
+	Categories []Categories
+}
+
 func homeHandler(w http.ResponseWriter, r *http.Request) {
-		carsData, err := landingPage()
 		if r.URL.Path != "/" {
        		http.NotFound(w, r)
         	return
     	}
+		carsData, err := landingPage()
 		if err != nil {
 			http.Error(w, "error message", http.StatusInternalServerError)
 			return
 		}
-
-		tpl.ExecuteTemplate(w, "home.html", carsData)
+	manufacturersBody, err:= http.Get("http://localhost:3000/api/manufacturers/")
+	if err != nil{
+		http.Error(w, "error getting manufacturers", http.StatusInternalServerError)
+		return
+	}
+	var manufacturers []Manufacturers
+    body, _ := io.ReadAll(manufacturersBody.Body)
+    json.Unmarshal(body, &manufacturers)
+	
+	categoriesBody, err := http.Get("http://localhost:3000/api/categories")
+    if err != nil {
+        http.Error(w, "error getting categories", http.StatusInternalServerError)
+        return
+    }
+    var categories []Categories
+    body, _ = io.ReadAll(categoriesBody.Body)
+    json.Unmarshal(body, &categories)
+	
+	data := HomeData{
+		Cars: carsData,
+		Manufacturers: manufacturers,
+		Categories: categories,
+	}
+	tpl.ExecuteTemplate(w, "home.html", data)
 }
 
 func AllcarDetail(w http.ResponseWriter, r *http.Request){
@@ -212,100 +213,70 @@ func AllcarDetail(w http.ResponseWriter, r *http.Request){
 		http.Error(w, "error getting car", http.StatusInternalServerError)
 		return
 	}
-	manufacturer,err:= manufacturerCars(fmt.Sprintf("%d", car.ManufacturerID))
+	manufacturer,err:= manufacturerCars(strconv.Itoa(car.ManufacturerID))
 	if err != nil {
 		http.Error(w, "error getting manufacturer", http.StatusInternalServerError)
 		return
 	}
-	category,err:= categoriesCars(fmt.Sprintf("%d", car.CategoryID))
+	category,err:= categoriesCars(strconv.Itoa(car.CategoryID))
 	if err != nil {
 		http.Error(w, "error getting category", http.StatusInternalServerError)
 		return
 	}
 	
     detail := CarDetail{
-        Car:          car,
+        Car: car,
         Manufacturer: manufacturer,
-        Category:     category,
+        Category: category,
     }
 	tpl.ExecuteTemplate(w, "car.html", detail) 
 }
 
-// func allmodelsHandler(w http.ResponseWriter, r *http.Request) {
-// 		carsData, err := getCars()
-// 		if err != nil {
-// 			http.Error(w, "error message", http.StatusInternalServerError)
-// 			return
-// 		}
-// 		w.Header().Set("content-type", "application/json")
-// 		w.Write([]byte(carsData))
-// 	}
+func filterHandler(w http.ResponseWriter, r *http.Request) {
+    manufacturer := r.URL.Query().Get("manufacturer")
+    category := r.URL.Query().Get("category")
+    year := r.URL.Query().Get("year")
 
-// func modelsHandler(w http.ResponseWriter, r *http.Request) {
-// 		id := r.PathValue("id")
-// 		carsData, err := getCarModel(id)
-// 		if err != nil {
-// 			http.Error(w, "error message", http.StatusInternalServerError)
-// 			return
-// 		}
-// 		jsonData, err := json.Marshal(carsData)
-// 		if err != nil {
-// 			http.Error(w, "error message", http.StatusInternalServerError)
-// 			return
-// 		}
-// 		w.Header().Set("content-type", "application/json")
-// 		w.Write(jsonData)
-// 	}
+    cars, err := getCars()
+    if err != nil {
+        http.Error(w, "error getting cars", http.StatusInternalServerError)
+        return
+    }
+
+    var filtered []FrontPage
+    for _, car := range cars {
+        if manufacturer != "" && strconv.Itoa(car.ManufacturerID) != manufacturer {
+            continue
+        }
+        if category != "" && strconv.Itoa(car.CategoryID) != category {
+            continue
+        }
+        if year != "" && strconv.Itoa(car.Year) != year {
+            continue
+        }
+        filtered = append(filtered, FrontPage{
+            Id: car.Id,
+            ModelName: car.Name,
+            ManuYear: car.Year,
+            Image: car.Image,
+        })
+    }
 	
-// func allManufacturersHandler(w http.ResponseWriter, r *http.Request) {
-// 		manufacturersData, err := getCarsManufacturer()
-// 		if err != nil {
-// 			http.Error(w, "error message", http.StatusInternalServerError)
-// 			return
-// 		}
-// 		w.Header().Set("content-type", "application/json")
-// 		w.Write(manufacturersData)
-// 	}
+    manufacturersBody, _ := http.Get("http://localhost:3000/api/manufacturers/")
+    var manufacturers []Manufacturers
+    body, _ := io.ReadAll(manufacturersBody.Body)
+    json.Unmarshal(body, &manufacturers)
 
-// func manufacturersHandler(w http.ResponseWriter, r *http.Request) {
-// 		id := r.PathValue("id")
-// 		manufacturersData, err := manufacturerCars(id)
-// 		if err != nil {
-// 			http.Error(w, "error message", http.StatusInternalServerError)
-// 			return
-// 		}
-// 		jsonData, err := json.Marshal(manufacturersData)
-// 		if err != nil {
-// 			http.Error(w, "error message", http.StatusInternalServerError)
-// 			return
-// 		}
-// 		w.Header().Set("content-type", "application/json")
-// 		w.Write(jsonData)
-// 	}
+    categoriesBody, _ := http.Get("http://localhost:3000/api/categories")
+    var categories []Categories
+    body, _ = io.ReadAll(categoriesBody.Body)
+    json.Unmarshal(body, &categories)
 
-// func allCategoriesHandler(w http.ResponseWriter, r *http.Request) {
-// 		categoriesData, err := getCarsCategories()
-// 		if err != nil {
-// 			http.Error(w, "error message", http.StatusInternalServerError)
-// 			return
-// 		}
-// 		w.Header().Set("content-type", "application/json")
-// 		w.Write([]byte(categoriesData))
-// 	}
-// func categoriesHandler(w http.ResponseWriter, r *http.Request) {
-// 	id := r.PathValue("id")
-// 	categoriesData, err := categoriesCars(id)
-// 	if err != nil {
-// 			http.Error(w, "error message", http.StatusInternalServerError)
-// 			return
-// 		}
-// 	jsonData,err := json.Marshal(categoriesData)
-// 	if err != nil {
-// 		http.Error(w, "error message", http.StatusInternalServerError)
-// 		return
-// 	}
-// 	w.Header().Set("content-type", "application/json")
-// 	w.Write(jsonData)
-// }
+    data := HomeData{
+        Cars: filtered,
+        Manufacturers: manufacturers,
+        Categories: categories,
+    }
 
-
+    tpl.ExecuteTemplate(w, "home.html", data)
+}

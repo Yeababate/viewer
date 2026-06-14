@@ -16,7 +16,7 @@
 
         <nav class="heading">
                 <ol>
-                        <li class="heading"><a href="#">Home</a></li>
+                        <li class="heading"><a href="/">Home</a></a></li>
                         <li class="heading"><a href="#">Model Details</a></li>
                         <li class="heading"><a href="#">Compare Cars</a></li>
                 </ol>
@@ -29,16 +29,30 @@
                     <p class="subheading">A tagline of some kind</p>
                 </section>
                        
-                <section> 
-                     <!-- search and filter functionality-->
+                <section>
+                        <form action="/filter" method="GET">
+                                <select name="manufacturer">
+                                        <option value="">All Manufacturers</option>
+                                        {{ range .Manufacturers }}
+                                        <option value="{{ .Id }}">{{ .Name }}</option>
+                                        {{ end }}
+                                </select>
+                                <select name="category">
+                                        <option value="">All Categories</option>
+                                        {{ range .Categories }}
+                                        <option value="{{ .Id }}">{{ .Name }}</option>
+                                        {{ end }}
+                                </select>
+                                <input type="number" name="year" placeholder="Year">
+                                <button type="submit">Filter</button>
+                        </form>
                 </section>
-
                 <section class="car-display">
                     <div class="border">
                         <h3>Display</h3>
                         <div class="car-container">
 
-			{{ range . }}
+			{{ range .Cars }}
                         <a href="/car/{{ .Id }}">
                             <div class="car-border">
                             
@@ -46,7 +60,6 @@
 				        <img src="/static/img/{{ .Image }}" alt="{{ .ModelName }}">
                                 </div>
                                 <div class="text-box">
-					<span>Car</span>
 					<span>{{ .ModelName }}</span>
 					<BR>
 					<span>{{ .ManuYear }}</span>
