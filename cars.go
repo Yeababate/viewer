@@ -348,20 +348,10 @@ func filterHandler(w http.ResponseWriter, r *http.Request) {
         })
     }
 	
-    manufacturersBody, _ := http.Get("http://localhost:3000/api/manufacturers/")
-    var manufacturers []Manufacturer
-    body, _ := io.ReadAll(manufacturersBody.Body)
-    json.Unmarshal(body, &manufacturers)
-
-    categoriesBody, _ := http.Get("http://localhost:3000/api/categories")
-    var categories []Category
-    body, _ = io.ReadAll(categoriesBody.Body)
-    json.Unmarshal(body, &categories)
-
     data := HomeData{
         Cars: filtered,
-        Manufacturers: manufacturers,
-        Categories: categories,
+        Manufacturers: Manufacturers,
+        Categories: Categories,
     }
 
     tpl.ExecuteTemplate(w, "home.html", data)
