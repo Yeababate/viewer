@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ .Car.Name }}</title>
+    <title>Car Detail</title>
     <link rel="stylesheet" href="/static/style.css">
 </head>
 <body>
@@ -19,6 +19,19 @@
     </div>
 
     <main>
+    
+    	<search> 
+             <form action="" onsubmit="window.location.reload();">
+                  <div>
+                       <input type="search" required id="carSearch" name="q" placeholder="Search for a car" aria-label="Search for a car" size="30" />
+                            <button>Search</button>
+                  </div>
+             </form>
+    
+    
+                     <!-- search and filter functionality-->
+        </search>
+	{{range . }}
         <div class="car-detail">
             <img src="/static/img/{{ .Car.Image }}" alt="{{ .Car.Name }}">
             <h2>{{ .Car.Name }}</h2>
@@ -38,6 +51,7 @@
             <h3>Category</h3>
             <p>{{ .Category.Name }}</p>
         </div>
+	{{ end }}
     </main>
 </body>
 </html>

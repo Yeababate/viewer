@@ -16,7 +16,7 @@
 
         <nav class="heading">
                 <ol>
-                        <li class="heading"><a href="/">Home</a></a></li>
+                        <li class="heading"><a href="/">Home</a></li>
                         <li class="heading"><a href="#">Model Details</a></li>
                         <li class="heading"><a href="#">Compare Cars</a></li>
                 </ol>
@@ -47,6 +47,18 @@
                                 <button type="submit">Filter</button>
                         </form>
                 </section>
+                <search> 
+		     <form action="/">
+		          <div>
+			       <input type="search" required id="carSearch" name="q" placeholder="Search for a car" aria-label="Search for a car" size="30" />
+			       <button>Search</button>
+			  </div>
+		     </form>
+		
+			   
+                     <!-- search and filter functionality-->
+                </search>
+
                 <section class="car-display">
                     <div class="border">
                         <h3>Display</h3>
@@ -57,12 +69,12 @@
                             <div class="car-border">
                             
                                 <div class="image-box">
-				        <img src="/static/img/{{ .Image }}" alt="{{ .ModelName }}">
+				        <img src="/static/img/{{ .Image }}" alt="{{ .Name }}">
                                 </div>
                                 <div class="text-box">
-					<span>{{ .ModelName }}</span>
+					<span>{{ .Name }}</span>
 					<BR>
-					<span>{{ .ManuYear }}</span>
+					<span>{{ .Year }}</span>
 
                                 </div>
                             

@@ -1,10 +1,11 @@
 package main
 
 import (
-	//"fmt"
+	"fmt"
 	"net/http"
 	"io"
 	"encoding/json"
+	"strings"
 	"strconv"
 )
 
@@ -105,6 +106,7 @@ func manufacturerCars(car string) (Manufacturers, error) {
 	return manufacturer, nil
 }
 
+
 func categoriesCars(car string) (Categories, error) {
 	url := "http://localhost:3000/api/categories/" + car
 	resp, errResp := http.Get(url)
@@ -126,14 +128,14 @@ func categoriesCars(car string) (Categories, error) {
 	return category, nil
 }
 
-type FrontPage struct {
+/*type FrontPage struct {
 	Id int
 	ModelName string 
 	ManuYear int
 	Image string
-}
+}*/
 
-func landingPage() ([]FrontPage, error){
+func landingPage() ([]Car, error){
 	url := "http://localhost:3000/api/models"
 	resp, errResp := http.Get(url)
 	if errResp != nil {
@@ -150,7 +152,7 @@ func landingPage() ([]FrontPage, error){
 	if errJson != nil {
 		return nil, errJson
 	}
-	var landing []FrontPage
+/*	var landing []FrontPage
 	for _, car := range model{
 		landing = append(landing, FrontPage{
 			Id: car.Id,
@@ -158,10 +160,50 @@ func landingPage() ([]FrontPage, error){
 			ManuYear: car.Year,
 			Image: car.Image,
 		})
-	}
-	
+	}*/
 
-	return landing, nil
+	return model, nil
+}
+
+func getSearchedCar(term string) ([]Car, error) {
+	//strings.Fields() splits strings around whitespace chars (incl mult spaces, tabs, newlines)
+	searchTerms := strings.Fields(strings.ToLower(term))
+	
+	//[]Car in case more than one car is found by search
+	var carsFound []Car
+	var name string
+	var year string
+	if len(searchTerms) == 1 {
+		for _,car := range CarsData {
+			name = strings.ToLower(car.Name)
+			year = strconv.Itoa(car.Year)
+			if strings.Contains(name, term)||strings.Contains(year,term) {
+				carsFound = append(carsFound, car)
+			}
+		}
+	} else {
+	for _,car := range CarsData {
+		name = strings.ToLower(car.Name)
+		year = strconv.Itoa(car.Year)
+		matchCount := 0
+		for _,term := range searchTerms {
+			if strings.Contains(name, term) || strings.Contains(year,term) {
+				matchCount += 1
+			}
+			
+		}
+		if matchCount == 2 {
+			carsFound = append(carsFound, car)
+		}
+		matchCount = 0
+	}
+	}
+	if len(carsFound)<1 {
+		return []Car{}, fmt.Errorf("car not found")
+	} 
+	
+	return carsFound, nil
+
 }
 
 type HomeData struct {
@@ -171,65 +213,83 @@ type HomeData struct {
 }
 
 func homeHandler(w http.ResponseWriter, r *http.Request) {
-		if r.URL.Path != "/" {
-       		http.NotFound(w, r)
-        	return
-    	}
-		carsData, err := landingPage()
-		if err != nil {
-			http.Error(w, "error message", http.StatusInternalServerError)
-			return
-		}
-	manufacturersBody, err:= http.Get("http://localhost:3000/api/manufacturers/")
-	if err != nil{
-		http.Error(w, "error getting manufacturers", http.StatusInternalServerError)
+=======
+	var err error
+	CarsData, err = landingPage()
+	landingPageCars := CarsData
+	if err != nil {
+		http.Error(w, "error message", http.StatusInternalServerError)
 		return
 	}
-	var manufacturers []Manufacturers
-    body, _ := io.ReadAll(manufacturersBody.Body)
-    json.Unmarshal(body, &manufacturers)
-	
-	categoriesBody, err := http.Get("http://localhost:3000/api/categories")
-    if err != nil {
-        http.Error(w, "error getting categories", http.StatusInternalServerError)
-        return
-    }
-    var categories []Categories
-    body, _ = io.ReadAll(categoriesBody.Body)
-    json.Unmarshal(body, &categories)
-	
-	data := HomeData{
-		Cars: carsData,
-		Manufacturers: manufacturers,
-		Categories: categories,
+
+	if r.FormValue("q") != "" {
+		landingPageCars, err = getSearchedCar(strings.ToLower(r.FormValue("q")))
+		if err != nil {
+			http.Error(w, "car not found", http.StatusInternalServerError)
+			return
+		}
+
+	} else {
+		if r.URL.Path != "/" {
+			http.NotFound(w,r)
+			return
+		}
 	}
-	tpl.ExecuteTemplate(w, "home.html", data)
+
+	tpl.ExecuteTemplate(w, "home.html", landingPageCars)
 }
 
 func AllcarDetail(w http.ResponseWriter, r *http.Request){
-	id := r.PathValue("id")
-	car ,err := getCarModel(id)
-	if err != nil {
-		http.Error(w, "error getting car", http.StatusInternalServerError)
-		return
+	//make a []Car in case more than one car is found by search
+	var carsFound []Car
+	var err error
+
+	//if r.FormValue("q") != "", something has been submitted in the search bar
+	if r.FormValue("q") != "" {
+		carsFound, err = getSearchedCar(strings.ToLower(r.FormValue("q")))
+		if err != nil {
+			http.Error(w, "car not found", http.StatusInternalServerError)
+			return
+		}
+		
+	} else {
+		id := r.PathValue("id")
+		car, err := getCarModel(id)
+		carsFound = append([]Car{}, car)
+		if err != nil {
+			http.Error(w, "error getting car", http.StatusInternalServerError)
+			return
+		}
 	}
-	manufacturer,err:= manufacturerCars(strconv.Itoa(car.ManufacturerID))
-	if err != nil {
-		http.Error(w, "error getting manufacturer", http.StatusInternalServerError)
-		return
-	}
-	category,err:= categoriesCars(strconv.Itoa(car.CategoryID))
-	if err != nil {
-		http.Error(w, "error getting category", http.StatusInternalServerError)
-		return
-	}
+
 	
-    detail := CarDetail{
-        Car: car,
-        Manufacturer: manufacturer,
-        Category: category,
-    }
-	tpl.ExecuteTemplate(w, "car.html", detail) 
+	cars := []CarDetail{}
+	var detail CarDetail
+
+	//get all details for each car in carsFound
+	for i := range carsFound {
+		manufacturer,err:= manufacturerCars(fmt.Sprintf("%d", carsFound[i].ManufacturerID))
+		if err != nil {
+			http.Error(w, "error getting manufacturer", http.StatusInternalServerError)
+			return
+		}
+		category,err:= categoriesCars(fmt.Sprintf("%d", carsFound[i].CategoryID))
+		if err != nil {
+			http.Error(w, "error getting category", http.StatusInternalServerError)
+			return
+		}
+	
+   	 	detail = CarDetail{
+       	 		Car:          carsFound[i],
+        		Manufacturer: manufacturer,
+        		Category:     category,
+    		}
+
+
+    		cars = append(cars, detail)
+    	}
+
+	tpl.ExecuteTemplate(w, "car.html", cars)
 }
 
 func filterHandler(w http.ResponseWriter, r *http.Request) {
