@@ -26,23 +26,28 @@ type Specifications struct {
 	Drivetrain string `json:"drivetrain"`
 }
 
-type Manufacturers struct {
+type Manufacturer struct {
 	Id int `json:"id"`
 	Name string `json:"name"`
 	Country string `json:"country"`
 	FoundingYear int `json:"FoundingYear"`
 }
 
-type Categories struct {
+type Category struct {
 	Id int `json:"id"`
 	Name string `json:"name"`
 }
 
 type CarDetail struct {
         Car          Car
-        Manufacturer Manufacturers
-        Category     Categories
+        Manufacturer Manufacturer
+        Category     Category
     }
+
+var CarsData []Car
+
+var Manufacturers []Manufacturer
+var Categories []Category
 
 func getCars() ([]Car, error) {
 	url := "http://localhost:3000/api/models"
@@ -85,44 +90,44 @@ func getCarModel(id string) (Car, error) {
 	return model, nil
 }
 
-func manufacturerCars(car string) (Manufacturers, error) {
+func manufacturerCars(car string) (Manufacturer, error) {
 	url := "http://localhost:3000/api/manufacturers/" + car
 	resp, errResp := http.Get(url)
 	if errResp != nil {
-		return Manufacturers{}, errResp
+		return Manufacturer{}, errResp
 	}
 
 	body, errRead := io.ReadAll(resp.Body)
 	if errRead != nil {
-		return Manufacturers{}, errRead
+		return Manufacturer{}, errRead
 	}
 
-	var manufacturer Manufacturers
+	var manufacturer Manufacturer
 	errJson := json.Unmarshal(body, &manufacturer)
 	if errJson != nil {
-		return Manufacturers{}, errJson
+		return Manufacturer{}, errJson
 	}
 
 	return manufacturer, nil
 }
 
 
-func categoriesCars(car string) (Categories, error) {
+func categoriesCars(car string) (Category, error) {
 	url := "http://localhost:3000/api/categories/" + car
 	resp, errResp := http.Get(url)
 	if errResp != nil {
-		return Categories{}, errResp
+		return Category{}, errResp
 	}
 
 	body, errRead := io.ReadAll(resp.Body)
 	if errRead != nil {
-		return Categories{}, errRead
+		return Category{}, errRead
 	}
 
-	var category Categories
+	var category Category
 	errJson := json.Unmarshal(body, &category)
 	if errJson != nil {
-		return Categories{}, errJson
+		return Category{}, errJson
 	}
 
 	return category, nil
@@ -207,13 +212,12 @@ func getSearchedCar(term string) ([]Car, error) {
 }
 
 type HomeData struct {
-	Cars []FrontPage
-	Manufacturers []Manufacturers
-	Categories []Categories
+	Cars []Car
+	Manufacturers []Manufacturer
+	Categories []Category
 }
 
 func homeHandler(w http.ResponseWriter, r *http.Request) {
-=======
 	var err error
 	CarsData, err = landingPage()
 	landingPageCars := CarsData
@@ -236,7 +240,29 @@ func homeHandler(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	tpl.ExecuteTemplate(w, "home.html", landingPageCars)
+	manufacturersBody, err:= http.Get("http://localhost:3000/api/manufacturers/")
+	if err != nil{
+		http.Error(w, "error getting manufacturers", http.StatusInternalServerError)
+		return
+	}
+    	body, _ := io.ReadAll(manufacturersBody.Body)
+   	json.Unmarshal(body, &Manufacturers)
+
+	categoriesBody, err := http.Get("http://localhost:3000/api/categories")
+    	if err != nil {
+        	http.Error(w, "error getting categories", http.StatusInternalServerError)
+        	return
+    	}
+    	body, _ = io.ReadAll(categoriesBody.Body)
+   	json.Unmarshal(body, &Categories)
+
+	data := HomeData{
+		Cars: landingPageCars,
+		Manufacturers: Manufacturers,
+		Categories: Categories,
+	}
+
+	tpl.ExecuteTemplate(w, "home.html", data)
 }
 
 func AllcarDetail(w http.ResponseWriter, r *http.Request){
@@ -303,7 +329,7 @@ func filterHandler(w http.ResponseWriter, r *http.Request) {
         return
     }
 
-    var filtered []FrontPage
+    var filtered []Car
     for _, car := range cars {
         if manufacturer != "" && strconv.Itoa(car.ManufacturerID) != manufacturer {
             continue
@@ -314,21 +340,21 @@ func filterHandler(w http.ResponseWriter, r *http.Request) {
         if year != "" && strconv.Itoa(car.Year) != year {
             continue
         }
-        filtered = append(filtered, FrontPage{
+        filtered = append(filtered, Car{
             Id: car.Id,
-            ModelName: car.Name,
-            ManuYear: car.Year,
+            Name: car.Name,
+            Year: car.Year,
             Image: car.Image,
         })
     }
 	
     manufacturersBody, _ := http.Get("http://localhost:3000/api/manufacturers/")
-    var manufacturers []Manufacturers
+    var manufacturers []Manufacturer
     body, _ := io.ReadAll(manufacturersBody.Body)
     json.Unmarshal(body, &manufacturers)
 
     categoriesBody, _ := http.Get("http://localhost:3000/api/categories")
-    var categories []Categories
+    var categories []Category
     body, _ = io.ReadAll(categoriesBody.Body)
     json.Unmarshal(body, &categories)
 
