@@ -294,12 +294,12 @@ func AllcarDetail(w http.ResponseWriter, r *http.Request){
 
 	//get all details for each car in carsFound
 	for i := range carsFound {
-		manufacturer,err:= manufacturerCars(fmt.Sprintf("%d", carsFound[i].ManufacturerID))
+		manufacturer,err:= manufacturerCars(strconv.Itoa(carsFound[i].ManufacturerID))
 		if err != nil {
 			http.Error(w, "error getting manufacturer", http.StatusInternalServerError)
 			return
 		}
-		category,err:= categoriesCars(fmt.Sprintf("%d", carsFound[i].CategoryID))
+		category,err:= categoriesCars(strconv.Itoa(carsFound[i].CategoryID))
 		if err != nil {
 			http.Error(w, "error getting category", http.StatusInternalServerError)
 			return
