@@ -15,9 +15,10 @@ func main(){
 
 	tpl,_ = tpl.ParseGlob("templates/*html")
 
-	http.HandleFunc("/", homeHandler) 
 	fmt.Println("server is running")
-	http.HandleFunc("GET /car/{id}", AllcarDetail)
+
+	http.HandleFunc("/", homeHandler) 
+	http.HandleFunc("GET /car/{id}", carDetailHandler)
 	http.HandleFunc("GET /filter", filterHandler)
 	
 	// http.HandleFunc("GET /models/", allmodelsHandler)
