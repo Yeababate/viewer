@@ -13,13 +13,7 @@ var Categories []Category
 
 func homeHandler(w http.ResponseWriter, r *http.Request) {
 	var err error
-//	CarsData, err = getCars()
 	landingPageCars := CarsData
-/*	if err != nil {
-		http.Error(w, "error message", http.StatusInternalServerError)
-		return
-	}
-*/
 	if r.FormValue("q") != "" {
 		landingPageCars, err = getSearchedCar(strings.ToLower(r.FormValue("q")))
 		if err != nil {
@@ -34,22 +28,6 @@ func homeHandler(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-/*	manufacturersBody, err:= http.Get("http://localhost:3000/api/manufacturers/")
-	if err != nil{
-		http.Error(w, "error getting manufacturers", http.StatusInternalServerError)
-		return
-	}
-    	body, _ := io.ReadAll(manufacturersBody.Body)
-   	json.Unmarshal(body, &Manufacturers)
-
-	categoriesBody, err := http.Get("http://localhost:3000/api/categories")
-    	if err != nil {
-        	http.Error(w, "error getting categories", http.StatusInternalServerError)
-        	return
-    	}
-    	body, _ = io.ReadAll(categoriesBody.Body)
-   	json.Unmarshal(body, &Categories)
-*/
 	data := HomeData{
 		Cars: landingPageCars,
 		Manufacturers: Manufacturers,
