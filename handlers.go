@@ -2,8 +2,8 @@ package main
 
 import (
 	"net/http"
-	"io"
-	"encoding/json"
+//	"io"
+//	"encoding/json"
 	"strings"
 	"strconv"
 )
@@ -13,13 +13,13 @@ var Categories []Category
 
 func homeHandler(w http.ResponseWriter, r *http.Request) {
 	var err error
-	CarsData, err = getCars()
+//	CarsData, err = getCars()
 	landingPageCars := CarsData
-	if err != nil {
+/*	if err != nil {
 		http.Error(w, "error message", http.StatusInternalServerError)
 		return
 	}
-
+*/
 	if r.FormValue("q") != "" {
 		landingPageCars, err = getSearchedCar(strings.ToLower(r.FormValue("q")))
 		if err != nil {
@@ -34,7 +34,7 @@ func homeHandler(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	manufacturersBody, err:= http.Get("http://localhost:3000/api/manufacturers/")
+/*	manufacturersBody, err:= http.Get("http://localhost:3000/api/manufacturers/")
 	if err != nil{
 		http.Error(w, "error getting manufacturers", http.StatusInternalServerError)
 		return
@@ -49,7 +49,7 @@ func homeHandler(w http.ResponseWriter, r *http.Request) {
     	}
     	body, _ = io.ReadAll(categoriesBody.Body)
    	json.Unmarshal(body, &Categories)
-
+*/
 	data := HomeData{
 		Cars: landingPageCars,
 		Manufacturers: Manufacturers,

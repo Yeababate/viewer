@@ -10,6 +10,14 @@ import (
 var tpl *template.Template
 
 func main(){
+	var err error
+        CarsData, err = getCars()
+        Manufacturers, err = getManufacturers()
+        Categories, err = getCategories()
+        if err != nil {
+                log.Fatal(err)
+        }
+
 	fs := http.FileServer(http.Dir("static"))
 	http.Handle("/static/", http.StripPrefix("/static/", fs))
 
@@ -28,7 +36,7 @@ func main(){
 	// http.HandleFunc("GET /categories", allCategoriesHandler)
 	// http.HandleFunc("GET /categories/{id}", categoriesHandler)
 	
-	err := http.ListenAndServe(":8080", nil)
+	err = http.ListenAndServe(":8080", nil)
 	if err != nil {
 		log.Fatal(err)
 	}
