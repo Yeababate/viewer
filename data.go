@@ -73,6 +73,48 @@ func getCars() ([]Car, error) {
 	return cars, nil
 }
 
+func getManufacturers() ([]Manufacturer, error) {
+        url := "http://localhost:3000/api/manufacturers/"
+        resp, err := http.Get(url)
+        if err != nil {
+                return nil, err
+        }
+
+        body, errRead := io.ReadAll(resp.Body)
+        if errRead != nil {
+                return nil, errRead
+        }
+
+        var manufacturers []Manufacturer
+        err = json.Unmarshal(body, &manufacturers)
+        if err != nil {
+                return nil, err
+        }
+
+        return manufacturers, nil
+}
+
+func getCategories() ([]Category, error) {
+        url := "http://localhost:3000/api/categories"
+        resp, err := http.Get(url)
+        if err != nil {
+                return nil, err
+        }
+
+        body, errRead := io.ReadAll(resp.Body)
+        if errRead != nil {
+                return nil, errRead
+        }
+
+        var categories []Category
+        err = json.Unmarshal(body, &categories)
+        if err != nil {
+                return nil, err
+        }
+
+        return categories, nil
+}
+
 func getCarModel(id string) (Car, error) {
 	url := "http://localhost:3000/api/models/" + id
 	resp, errResp := http.Get(url)

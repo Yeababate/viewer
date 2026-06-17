@@ -4,12 +4,36 @@ import (
 	"net/http"
 	"html/template"
 	"log"
-
+	"sync"
 )
 
 var tpl *template.Template
 
 func main(){
+	var err error
+	//use WaitGroup to wait for all goroutines fetching API data to complete before starting server
+        var wg sync.WaitGroup
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		CarsData, err = getCars()
+	}()
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+        	Manufacturers, err = getManufacturers()
+	}()
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+        	Categories, err = getCategories()
+	}()
+        if err != nil {
+                log.Fatal(err)
+        }
+	//wait until above functions complete before continuing
+	wg.Wait()
+
 	fs := http.FileServer(http.Dir("static"))
 	http.Handle("/static/", http.StripPrefix("/static/", fs))
 
@@ -28,7 +52,7 @@ func main(){
 	// http.HandleFunc("GET /categories", allCategoriesHandler)
 	// http.HandleFunc("GET /categories/{id}", categoriesHandler)
 	
-	err := http.ListenAndServe(":8080", nil)
+	err = http.ListenAndServe(":8080", nil)
 	if err != nil {
 		log.Fatal(err)
 	}
