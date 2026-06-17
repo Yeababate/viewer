@@ -17,20 +17,26 @@ func main(){
 	go func() {
 		defer wg.Done()
 		CarsData, err = getCars()
+		if err != nil {
+			log.Fatal(err)
+		}
 	}()
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
         	Manufacturers, err = getManufacturers()
+		if err != nil {
+			log.Fatal(err)
+		}
 	}()
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
         	Categories, err = getCategories()
+		if err != nil {
+			log.Fatal(err)
+		}
 	}()
-        if err != nil {
-                log.Fatal(err)
-        }
 	//wait until above functions complete before continuing
 	wg.Wait()
 
