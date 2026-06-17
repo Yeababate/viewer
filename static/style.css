@@ -1,16 +1,30 @@
 
+:root {
+    --color-bg-primary: #16213e;
+    --color-bg-secondary: #1a1a2e;
+    --color-bg-card: #0f3460;
+    --color-accent: #66e945;
+    --color-text-primary: #e0e0ff;
+    --color-text-secondary: #a8c7fa;
+    --color-border: #2a4a7f;
+}
+
 .lw { font-size: 60px; font-family: Arial, Helvetica, sans-serif; }
+
 body {
     width: 100%;
     min-height: 100vh;
     justify-content: center;
+    background-color: var(--color-bg-primary);
+    color: var(--color-text-primary);
 }
 .top-bar {
     display: flex;
     justify-content: space-between;
     align-items: center;
     padding-left: 20px;
-    background-color: rgba(252,221,236,1);
+    background-color: var(--color-bg-secondary);
+    color: var(--color-text-primary);
 }
 
 
@@ -21,6 +35,16 @@ body {
     display: inline-block;
     padding: 10px;
     font-size: 1.10em;
+    color: var(--color-text-primary);
+}
+
+.heading a {
+    color: var(--color-text-secondary);
+    text-decoration: none;
+}
+
+.heading a:hover {
+    color: var(--color-accent);
 }
 
 .heading a::after {
@@ -61,7 +85,9 @@ body {
     min-width: 20%;
     max-width: fit-content;
     max-height: fit-content;
-    border: 1px solid gray;
+    border: 1px solid var(--color-border);
+    background-color: var(--color-bg-card);
+    color: var(--color-text-secondary);
     margin: 5px;
     display: flex;
     flex-direction: column;
@@ -69,6 +95,10 @@ body {
     justify-content: center;
 }
 
+.car-border:hover {
+    border-color: var(--color-accent);
+    color: var(--color-text-primary);
+}
 .car-container {
     display: flex;
     flex-wrap: wrap;
@@ -76,6 +106,47 @@ body {
     justify-content: center;
 
 }
+
+.car-detail {
+    max-width: 800px;
+    margin: 40px auto;
+    padding: 30px;
+    background-color: var(--color-bg-card);
+    border: 1px var(--color-border);
+    border-radius: 10px;
+}
+
+.car-detail h2 {
+    font-size: 2em;
+    margin-bottom: 10px;
+}
+
+.car-detail h3 {
+    font-size: 1.2em;
+    color: var(--color-accent);
+}
+
+.car-detail p {
+    color: var(--color-text-secondary);
+    margin: 4px 0;
+    font-size: 1em;
+}
+
+.filter {
+    display: flex;
+    padding: 20px;
+}
+
+.filter form {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    flex-wrap: wrap;
+}
+.Search{
+
+}
+
 .text-box {
     text-align: center;
 }

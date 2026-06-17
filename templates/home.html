@@ -29,7 +29,7 @@
                     <p class="subheading">A tagline of some kind</p>
                 </section>
                        
-                <section>
+                <section class="filter">
                         <form action="/filter" method="GET">
                                 <select name="manufacturer">
                                         <option value="">All Manufacturers</option>
@@ -46,18 +46,15 @@
                                 <input type="number" name="year" placeholder="Year">
                                 <button type="submit">Filter</button>
                         </form>
+                         <search class="Search"> 
+		                <form action="/">
+			                <input type="search" required id="carSearch" name="q" placeholder="Search for a car" aria-label="Search for a car" size="30" />
+			                <button>Search</button>
+			        
+		                </form>
+                        </search>
                 </section>
-                <search> 
-		     <form action="/">
-		          <div>
-			       <input type="search" required id="carSearch" name="q" placeholder="Search for a car" aria-label="Search for a car" size="30" />
-			       <button>Search</button>
-			  </div>
-		     </form>
-		
-			   
-                     <!-- search and filter functionality-->
-                </search>
+               
 
                 <section class="car-display">
                     <div class="border">
