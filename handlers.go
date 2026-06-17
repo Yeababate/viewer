@@ -8,6 +8,7 @@ import (
 var CarsData []Car
 var Manufacturers []Manufacturer
 var Categories []Category
+var Years []int
 
 func homeHandler(w http.ResponseWriter, r *http.Request) {
 	var err error
@@ -30,6 +31,7 @@ func homeHandler(w http.ResponseWriter, r *http.Request) {
 		Cars: landingPageCars,
 		Manufacturers: Manufacturers,
 		Categories: Categories,
+		Years: Years,
 	}
 
 	tpl.ExecuteTemplate(w, "home.html", data)
@@ -88,6 +90,18 @@ func carDetailHandler(w http.ResponseWriter, r *http.Request){
 	tpl.ExecuteTemplate(w, "car.html", cars)
 }
 
+func getYears(cars []Car) []int {
+    yearMap := map[int]bool{}
+    var years []int
+    for _, car := range cars {
+        if !yearMap[car.Year] {
+            yearMap[car.Year] = true
+            years = append(years, car.Year)
+        }
+    }
+    return years
+}
+
 func filterHandler(w http.ResponseWriter, r *http.Request) {
     manufacturer := r.URL.Query().Get("manufacturer")
     category := r.URL.Query().Get("category")
@@ -110,18 +124,14 @@ func filterHandler(w http.ResponseWriter, r *http.Request) {
         if year != "" && strconv.Itoa(car.Year) != year {
             continue
         }
-        filtered = append(filtered, Car{
-            Id: car.Id,
-            Name: car.Name,
-            Year: car.Year,
-            Image: car.Image,
-        })
+        filtered = append(filtered, car)
     }
 	
     data := HomeData{
         Cars: filtered,
         Manufacturers: Manufacturers,
         Categories: Categories,
+		Years: Years,
     }
 
     tpl.ExecuteTemplate(w, "home.html", data)

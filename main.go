@@ -44,9 +44,8 @@ func main(){
 	http.Handle("/static/", http.StripPrefix("/static/", fs))
 
 	tpl,_ = tpl.ParseGlob("templates/*html")
-
+	Years = getYears(CarsData)
 	fmt.Println("server is running")
-
 	http.HandleFunc("/", homeHandler) 
 	http.HandleFunc("GET /car/{id}", carDetailHandler)
 	http.HandleFunc("GET /filter", filterHandler)

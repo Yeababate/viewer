@@ -42,6 +42,7 @@ type HomeData struct {
 	Cars []Car
 	Manufacturers []Manufacturer
 	Categories []Category
+	Years []int
 }
 
 type CarDetail struct {
@@ -49,8 +50,6 @@ type CarDetail struct {
         Manufacturer Manufacturer
         Category     Category
     }
-
-
 
 
 func getCars() ([]Car, error) {

@@ -2,7 +2,7 @@
 :root {
     --color-bg-primary: #16213e;
     --color-bg-secondary: #1a1a2e;
-    --color-bg-card: #0f3460;
+    --color-bg-card: #07274b;
     --color-accent: #66e945;
     --color-text-primary: #e0e0ff;
     --color-text-secondary: #a8c7fa;
@@ -75,9 +75,11 @@ body {
 }
 .border {
     width: 90%;
-    border: 1px solid grey;
-    padding: 20px;
-
+    margin: 40px auto;
+    padding: 30px;
+    background-color: var(--color-bg-card);
+    border-radius: 10px;
+  
 }
 
 .car-border {
@@ -246,4 +248,3 @@ body {
     height: 400px;
     object-fit: cover;
 }
-

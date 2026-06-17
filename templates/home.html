@@ -49,7 +49,12 @@
                                         <option value="{{ .Id }}">{{ .Name }}</option>
                                         {{ end }}
                                 </select>
-                                <input type="number" name="year" placeholder="Year">
+                                <select name="year">
+                                        <option value="">All Years</option>
+                                        {{ range .Years  }}
+                                        <option value="{{ . }}">{{ . }}</option>
+                                        {{ end }}
+                                </select>
                                 <button type="submit">Filter</button>
                         </form>
                          
@@ -57,7 +62,7 @@
         
                 <section class="car-display">
                     <div class="border">
-                        <h3>Display</h3>
+                       
                         <div class="car-container">
 
 			{{ range .Cars }}
