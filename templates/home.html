@@ -28,7 +28,13 @@
                     <h2 class="h2">Find Your Next Car</h2>
                     <p class="subheading">A tagline of some kind</p>
                 </section>
-                       
+                <search class="Search"> 
+		        <form action="/">
+			        <input type="search" required id="carSearch" name="q" placeholder="Search for a car" aria-label="Search for a car" size="30" />
+			        <button>Search</button>
+			        
+		        </form>
+                </search>
                 <section class="filter">
                         <form action="/filter" method="GET">
                                 <select name="manufacturer">
@@ -46,16 +52,9 @@
                                 <input type="number" name="year" placeholder="Year">
                                 <button type="submit">Filter</button>
                         </form>
-                         <search class="Search"> 
-		                <form action="/">
-			                <input type="search" required id="carSearch" name="q" placeholder="Search for a car" aria-label="Search for a car" size="30" />
-			                <button>Search</button>
-			        
-		                </form>
-                        </search>
+                         
                 </section>
-               
-
+        
                 <section class="car-display">
                     <div class="border">
                         <h3>Display</h3>
