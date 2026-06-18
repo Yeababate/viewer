@@ -11,6 +11,10 @@ var Categories []Category
 var Years []int
 
 func homeHandler(w http.ResponseWriter, r *http.Request) {
+	if r.URL.Path != "/" {
+		http.NotFound(w,r)
+		return
+	}
 	var err error
 	landingPageCars := CarsData
 	if r.FormValue("q") != "" {
@@ -20,15 +24,10 @@ func homeHandler(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-	} else {
-		if r.URL.Path != "/" {
-			http.NotFound(w,r)
-			return
-		}
 	}
-
+	filteredCar := filter(landingPageCars, r)
 	data := HomeData{
-		Cars: landingPageCars,
+		Cars: filteredCar,
 		Manufacturers: Manufacturers,
 		Categories: Categories,
 		Years: Years,
@@ -60,79 +59,40 @@ func carDetailHandler(w http.ResponseWriter, r *http.Request){
 		}
 	}
 
-	
+	filteredCar := filter(carsFound, r)
 	cars := []CarDetail{}
 	var detail CarDetail
 
 	//get all details for each car in carsFound
-	for i := range carsFound {
-		manufacturer,err:= getCarManufacturer(strconv.Itoa(carsFound[i].ManufacturerID))
+	for i := range filteredCar {
+		manufacturerDetails,err:= getCarManufacturer(strconv.Itoa(filteredCar[i].ManufacturerID))
 		if err != nil {
 			http.Error(w, "error getting manufacturer", http.StatusInternalServerError)
 			return
 		}
-		category,err:= getCarCategory(strconv.Itoa(carsFound[i].CategoryID))
+		categoryDetails,err:= getCarCategory(strconv.Itoa(filteredCar[i].CategoryID))
 		if err != nil {
 			http.Error(w, "error getting category", http.StatusInternalServerError)
 			return
 		}
 	
    	 	detail = CarDetail{
-       	 		Car:          carsFound[i],
-        		Manufacturer: manufacturer,
-        		Category:     category,
+       	 		Car: filteredCar[i],
+        		Manufacturer: manufacturerDetails,
+        		Category: categoryDetails,
+				Years: Years,
     		}
 
 
     		cars = append(cars, detail)
     	}
+		data := HomeData{
+			Cars: cars,
+			Manufacturers: Manufacturers,
+			Categories: Categories,
+			Years: Years,
+		}
 
-	tpl.ExecuteTemplate(w, "car.html", cars)
+	tpl.ExecuteTemplate(w, "car.html", data)
 }
 
-func getYears(cars []Car) []int {
-    yearMap := map[int]bool{}
-    var years []int
-    for _, car := range cars {
-        if !yearMap[car.Year] {
-            yearMap[car.Year] = true
-            years = append(years, car.Year)
-        }
-    }
-    return years
-}
-
-func filterHandler(w http.ResponseWriter, r *http.Request) {
-    manufacturer := r.URL.Query().Get("manufacturer")
-    category := r.URL.Query().Get("category")
-    year := r.URL.Query().Get("year")
-
-    cars, err := getCars()
-    if err != nil {
-        http.Error(w, "error getting cars", http.StatusInternalServerError)
-        return
-    }
-
-    var filtered []Car
-    for _, car := range cars {
-        if manufacturer != "" && strconv.Itoa(car.ManufacturerID) != manufacturer {
-            continue
-        }
-        if category != "" && strconv.Itoa(car.CategoryID) != category {
-            continue
-        }
-        if year != "" && strconv.Itoa(car.Year) != year {
-            continue
-        }
-        filtered = append(filtered, car)
-    }
-	
-    data := HomeData{
-        Cars: filtered,
-        Manufacturers: Manufacturers,
-        Categories: Categories,
-		Years: Years,
-    }
-
-    tpl.ExecuteTemplate(w, "home.html", data)
-}

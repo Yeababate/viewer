@@ -48,8 +48,6 @@ func main(){
 	fmt.Println("server is running")
 	http.HandleFunc("/", homeHandler) 
 	http.HandleFunc("GET /car/{id}", carDetailHandler)
-	http.HandleFunc("GET /filter", filterHandler)
-	
 	// http.HandleFunc("GET /models/", allmodelsHandler)
 	// http.HandleFunc("GET /models/{id}", modelsHandler)
 	// http.HandleFunc("GET /manufacturers", allManufacturersHandler)
