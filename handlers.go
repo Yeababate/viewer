@@ -49,7 +49,9 @@ func carDetailHandler(w http.ResponseWriter, r *http.Request){
 			return
 		}
 		
-	} else {
+	}else if  r.URL.Query().Get("manufacturer")!= "" || r.URL.Query().Get("category")!= ""{
+		carsFound = CarsData
+	}else {
 		id := r.PathValue("id")
 		car, err := getCarModel(id)
 		carsFound = append([]Car{}, car)
@@ -85,7 +87,7 @@ func carDetailHandler(w http.ResponseWriter, r *http.Request){
 
 
     		cars = append(cars, detail)
-    	}
+    }
 		data := HomeData{
 			Cars: cars,
 			Manufacturers: Manufacturers,
