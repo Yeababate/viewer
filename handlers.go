@@ -49,7 +49,7 @@ func carDetailHandler(w http.ResponseWriter, r *http.Request){
 			return
 		}
 		
-	}else if  r.URL.Query().Get("manufacturer")!= "" || r.URL.Query().Get("category")!= ""{
+	}else if  r.URL.Query().Get("manufacturer")!= "" || r.URL.Query().Get("category")!= "" || r.URL.Query().Get("year")!= ""{
 		carsFound = CarsData
 	}else {
 		id := r.PathValue("id")
