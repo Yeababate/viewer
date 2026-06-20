@@ -34,6 +34,11 @@
 			        <button>Search</button>
 			        
 		        </form>
+			{{ if .SearchOn }}
+			<form action="/" method="GET">
+				<button type="submit" name="clearSearch" value="clear">Clear</button>
+			</form>
+			{{ end }}
                 </search>
                 <section class="filter">
                         <form action="/" method="GET">
@@ -57,6 +62,11 @@
                                 </select>
                                 <button type="submit">Filter</button>
                         </form>
+			{{ if .FilterOn }}
+			<form action="/" method="GET">
+				<button type="submit" name="clearFilter" value="clear">Clear Filter</button>
+			</form>
+			{{ end }}
                          
                 </section>
                 <section class="car-display">

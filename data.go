@@ -44,6 +44,8 @@ type HomeData struct {
 	Categories []Category
 	Years []int
 	PageNumbers []int
+	SearchOn bool
+	FilterOn bool
 }
 
 type CarDetail struct {
@@ -233,20 +235,20 @@ func getYears(cars []Car) []int {
     return years
 }
 
-func filter(cars []Car, r *http.Request) []Car{
-    manufacturer := r.URL.Query().Get("manufacturer")
+func filter(cars []Car) []Car{
+    /*manufacturer := r.URL.Query().Get("manufacturer")
     category := r.URL.Query().Get("category")
-    year := r.URL.Query().Get("year")
+    year := r.URL.Query().Get("year")*/
 
     var filtered []Car
     for _, car := range cars {
-        if manufacturer != "" && strconv.Itoa(car.ManufacturerID) != manufacturer {
+        if Filters.Manufacturer != "" && strconv.Itoa(car.ManufacturerID) != Filters.Manufacturer {
             continue
         }
-        if category != "" && strconv.Itoa(car.CategoryID) != category {
+        if Filters.Category != "" && strconv.Itoa(car.CategoryID) != Filters.Category {
             continue
         }
-        if year != "" && strconv.Itoa(car.Year) != year {
+        if Filters.Year != "" && strconv.Itoa(car.Year) != Filters.Year {
             continue
         }
         filtered = append(filtered, car)
