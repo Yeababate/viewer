@@ -85,6 +85,13 @@
                     </div>
                 </section>
 
+		<section class="page-buttons">
+		     {{ range .PageNumbers }}
+		     <a href="/?page={{ . }}">{{ . }}</a>
+		     {{ end }}
+			
+		</section>
+
 
         </main>
 

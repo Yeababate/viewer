@@ -43,6 +43,7 @@ type HomeData struct {
 	Manufacturers []Manufacturer
 	Categories []Category
 	Years []int
+	PageNumbers []int
 }
 
 type CarDetail struct {

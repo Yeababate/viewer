@@ -17,6 +17,8 @@ func homeHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	var err error
 	landingPageCars := CarsData
+
+	//look for search results
 	if r.FormValue("q") != "" {
 		landingPageCars, err = getSearchedCar(strings.ToLower(r.FormValue("q")))
 		if err != nil {
@@ -25,19 +27,48 @@ func homeHandler(w http.ResponseWriter, r *http.Request) {
 		}
 
 	}
+
+	//look for filter results
 	filteredCar := filter(landingPageCars, r)
+
+	//break cars to be displayed up into pages
+	var numPages int
+	var pageNumbers []int
+	var index int
+	resultsPerPage := 5
+	if len(filteredCar)%resultsPerPage == 0 {
+		numPages = len(filteredCar)/resultsPerPage
+	} else {
+		numPages = len(filteredCar)/resultsPerPage + 1
+	}
+
+	for num := range numPages {
+		pageNumbers = append(pageNumbers, num+1)
+	}
+	if r.URL.Query().Get("page") != "" {
+		pageNum, err := strconv.Atoi(r.URL.Query().Get("page"))
+		if err != nil {
+			http.Error(w, "error getting page number", http.StatusInternalServerError)
+		}
+		index = (pageNum * resultsPerPage) - resultsPerPage
+	} else {
+		index = 0
+	}
+
+	carsOnPage := filteredCar[index:index+resultsPerPage]
+
 	data := HomeData{
-		Cars: filteredCar,
+		Cars: carsOnPage,
 		Manufacturers: Manufacturers,
 		Categories: Categories,
 		Years: Years,
+		PageNumbers: pageNumbers,
 	}
 
 	tpl.ExecuteTemplate(w, "home.html", data)
 }
 
 func carDetailHandler(w http.ResponseWriter, r *http.Request){
-	//make a []Car in case more than one car is found by search
 	var carsFound []Car
 	var err error
 
