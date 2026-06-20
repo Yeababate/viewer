@@ -50,13 +50,12 @@ func main(){
 
 	tpl,_ = tpl.ParseGlob("templates/*html")
 
-	http.HandleFunc("/", homeHandler) 
-	http.HandleFunc("GET /car/{id}", carDetailHandler)
-	http.HandleFunc("GET /filter", filterHandler)
-
 	//ONLY FOR TESTING
-	http.HandleFunc("GET /test", testHandler)
+	//http.HandleFunc("GET /test", testHandler)
 	
+	Years = getYears(CarsData)
+	http.HandleFunc("/", homeHandler)
+	http.HandleFunc("GET /car/{id}", carDetailHandler)
 	// http.HandleFunc("GET /models/", allmodelsHandler)
 	// http.HandleFunc("GET /models/{id}", modelsHandler)
 	// http.HandleFunc("GET /manufacturers", allManufacturersHandler)

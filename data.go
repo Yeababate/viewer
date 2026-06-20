@@ -39,18 +39,18 @@ type Category struct {
 }
 
 type HomeData struct {
-	Cars []Car
+	Cars any
 	Manufacturers []Manufacturer
 	Categories []Category
+	Years []int
 }
 
 type CarDetail struct {
         Car          Car
         Manufacturer Manufacturer
         Category     Category
+		Years []int
     }
-
-
 
 
 func getCars() ([]Car, error) {
@@ -218,4 +218,38 @@ func getSearchedCar(term string) ([]Car, error) {
 	
 	return carsFound, nil
 
+}
+
+func getYears(cars []Car) []int {
+    yearMap := map[int]bool{}
+    var years []int
+    for _, car := range cars {
+        if !yearMap[car.Year] {
+            yearMap[car.Year] = true
+            years = append(years, car.Year)
+        }
+    }
+    return years
+}
+
+func filter(cars []Car, r *http.Request) []Car{
+    manufacturer := r.URL.Query().Get("manufacturer")
+    category := r.URL.Query().Get("category")
+    year := r.URL.Query().Get("year")
+
+    var filtered []Car
+    for _, car := range cars {
+        if manufacturer != "" && strconv.Itoa(car.ManufacturerID) != manufacturer {
+            continue
+        }
+        if category != "" && strconv.Itoa(car.CategoryID) != category {
+            continue
+        }
+        if year != "" && strconv.Itoa(car.Year) != year {
+            continue
+        }
+        filtered = append(filtered, car)
+    }
+	
+   return filtered
 }
