@@ -27,6 +27,11 @@
                             <button>Search</button>
                   </div>
              </form>
+            {{ if .SearchOn }}
+			<form action="" onsubmit="window.location.reload()">
+				<button type="submit" name="clearSearch" value="clear">Clear</button>
+			</form>
+			{{ end }}
         </search>
         <section class="filter">
 
@@ -51,7 +56,11 @@
                     </select>
                     <button type="submit">Filter</button>
                 </form>
-                         
+                {{ if .FilterOn }}
+                <form action="" onsubmit="window.location.reload()">
+                    <button type="submit" name="clearFilter" value="clear">Clear Filter</button>
+                </form>
+                {{ end }}
                 </section>
 	{{range .Cars }}
         <div class="car-detail">
@@ -74,6 +83,13 @@
             <p>{{ .Category.Name }}</p>
         </div>
 	{{ end }}
+
+    <section class="page-buttons">
+        {{ range .PageNumbers }}
+        <a href="/?page={{ . }}">{{ . }}</a>
+        {{ end }}
+
+	</section>
     </main>
 </body>
 </html>
