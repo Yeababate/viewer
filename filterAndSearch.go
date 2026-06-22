@@ -75,9 +75,6 @@ func checkSearch(landingPageCars []Car, w http.ResponseWriter, r *http.Request) 
 }
 
 func getFilteredCars(cars []Car) []Car{
-    /*manufacturer := r.URL.Query().Get("manufacturer")
-    category := r.URL.Query().Get("category")
-    year := r.URL.Query().Get("year")*/
 
     var filtered []Car
     for _, car := range cars {
@@ -107,12 +104,19 @@ func checkFilter(landingPageCars []Car, w http.ResponseWriter, r* http.Request) 
 	}
 
 		//look for filter results
-	if  r.URL.Query().Get("manufacturer")!= "" || r.URL.Query().Get("category")!= "" || r.URL.Query().Get("year")!= ""{
+	if  r.URL.Query().Get("manufacturer")!= "" {
 		Filters.Manufacturer = r.URL.Query().Get("manufacturer")
+		filterOn = true
+	}
+	if r.URL.Query().Get("category") != "" {
 		Filters.Category = r.URL.Query().Get("category")
+		filterOn = true
+	}
+	if r.URL.Query().Get("year") != "" {
 		Filters.Year = r.URL.Query().Get("year")
 		filterOn = true
 	}
+
 	if Filters.Manufacturer != "" || Filters.Category != "" || Filters.Year != "" {
 		landingPageCars = getFilteredCars(landingPageCars)
 		filterOn = true
@@ -121,6 +125,6 @@ func checkFilter(landingPageCars []Car, w http.ResponseWriter, r* http.Request) 
 	return landingPageCars, filterOn
 
 
-}
+	}
 
 

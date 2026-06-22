@@ -1,4 +1,4 @@
-package main
+	package main
 
 type Car struct {
 	Id int `json:"id"`
@@ -36,7 +36,9 @@ type HomeData struct {
 	Years []int
 	PageNumbers []int
 	SearchOn bool
+	SearchValue string
 	FilterOn bool
+	Filters struct{Manufacturer string; Category string; Year string}
 }
 
 type CarDetail struct {
@@ -45,3 +47,4 @@ type CarDetail struct {
         Category     Category
 		Years []int
     }
+

@@ -14,6 +14,12 @@ var Filters struct {
 	Category string
 	Year string
 }
+
+var FilterValues struct {
+	Manufacturer string
+	Category string
+	Year string
+}
 var SearchValue string
 
 func homeHandler(w http.ResponseWriter, r *http.Request) {
@@ -41,7 +47,9 @@ func homeHandler(w http.ResponseWriter, r *http.Request) {
 		Years: Years,
 		PageNumbers: pageNumbers,
 		SearchOn: searchOn,
+		SearchValue: SearchValue,
 		FilterOn: filterOn,
+		Filters: Filters,
 	}
 
 	tpl.ExecuteTemplate(w, "home.html", data)
@@ -53,34 +61,20 @@ func carDetailHandler(w http.ResponseWriter, r *http.Request){
 	var filterOn bool
 	//var err error
 
-	//if r.FormValue("q") != "", something has been submitted in the search bar
-	/*if r.FormValue("q") != "" {
-		carsFound, err = getSearchedCars(strings.ToLower(r.FormValue("q")))
-		if err != nil {
-			http.Error(w, "car not found", http.StatusInternalServerError)
-			return
-		}
-		
-	}else if  r.URL.Query().Get("manufacturer")!= "" || r.URL.Query().Get("category")!= "" || r.URL.Query().Get("year")!= ""{
-		carsFound = CarsData
-	}else {
-		id := r.PathValue("id")
-		car, err := getCarModel(id)
-		carsFound = append([]Car{}, car)
-		if err != nil {
-			http.Error(w, "error getting car", http.StatusInternalServerError)
-			return
-		}
-	}*/
-
-	carsFound := CarsData
+		carsFound := CarsData
 
 	carsFound, searchOn = checkSearch(carsFound, w, r)
 
 	carsFound, filterOn = checkFilter(carsFound, w, r)
 
-	//if page was loaded by something that was not the click of Search or Filter button and no active search or filter parameters
-	if r.FormValue("q") == ""  && r.URL.Query().Get("manufacturer") == "" && r.URL.Query().Get("category") == "" && r.URL.Query().Get("year") == "" && SearchValue == "" && Filters.Manufacturer == "" && Filters.Category == "" && Filters.Year == ""{
+	//if page was loaded by something that was not the click of Search or Filter button (ie someone clicked a car detail card on home page) STILL NEED TO ACCOUNT FOR CLEAR BUTTON PRESS (CURRENTLY CLEARS BOTH WIHT ONE BUTTON)
+	if r.FormValue("q") == "" && r.URL.Query().Get("manufacturer") == "" && r.URL.Query().Get("category") == "" && r.URL.Query().Get("year") == "" {
+		SearchValue = ""
+		searchOn = false
+		Filters.Manufacturer = ""
+                Filters.Category = ""
+                Filters.Year = ""
+		filterOn = false
 		id := r.PathValue("id")
 		car, err := getCarModel(id)
 		carsFound = append([]Car{}, car)
@@ -126,7 +120,9 @@ func carDetailHandler(w http.ResponseWriter, r *http.Request){
 			Years: Years,
 			PageNumbers: pageNumbers,
 			SearchOn: searchOn,
+			SearchValue: SearchValue,
 			FilterOn: filterOn,
+			Filters: Filters,
 		}
 
 	tpl.ExecuteTemplate(w, "car.html", data)

@@ -30,9 +30,12 @@
                 </section>
                 <search class="Search"> 
 		        <form action="/">
+				{{ if .SearchOn }}
+				<input type="search" required id="carSearch" name="q" placeholder="{{ .SearchValue }}" aria-label="Search for a car" size="30" />
+				{{ else }}
 			        <input type="search" required id="carSearch" name="q" placeholder="Search for a car" aria-label="Search for a car" size="30" />
-			        <button>Search</button>
-			        
+				{{ end }}
+				<button>Search</button>
 		        </form>
 			{{ if .SearchOn }}
 			<form action="/" method="GET">
@@ -42,6 +45,26 @@
                 </search>
                 <section class="filter">
                         <form action="/" method="GET">
+				{{ if .FilterOn }}
+				<select name="manufacturer">
+					<option value="">{{ .Filters.Manufacturer }}</option>
+                                        {{ range .Manufacturers }}
+                                        <option value="{{ .Id }}">{{ .Name }}</option>
+                                        {{ end }}
+                                </select>
+                                <select name="category">
+					<option value="">{{ .Filters.Category }}</option>
+                                        {{ range .Categories  }}
+                                        <option value="{{ .Id }}">{{ .Name }}</option>
+                                        {{ end }}
+                                </select>
+                                <select name="year">
+					<option value="">{{ .Filters.Year }}</option>
+                                        {{ range .Years  }}
+                                        <option value="{{ . }}">{{ . }}</option>
+                                        {{ end }}
+                                </select>
+				{{ else }}
                                 <select name="manufacturer">
                                         <option value="">All Manufacturers</option>
                                         {{ range .Manufacturers }}
@@ -60,6 +83,7 @@
                                         <option value="{{ . }}">{{ . }}</option>
                                         {{ end }}
                                 </select>
+				{{ end }}
                                 <button type="submit">Filter</button>
                         </form>
 			{{ if .FilterOn }}
