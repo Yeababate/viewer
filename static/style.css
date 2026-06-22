@@ -238,6 +238,21 @@ body {
     opacity: 0.85;
 }
 
+.Submit {
+    padding: 10px 20px;
+    font-size: 1em;
+    background-color: var(--color-accent);
+    color: var(--color-bg-secondary);
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 600;
+}
+
+.Submit:hover {
+    opacity: 0.85;
+}   
+
 .text-box {
     text-align: center;
 }
