@@ -207,3 +207,34 @@ func createPages(landingPageCars []Car, w http.ResponseWriter, r* http.Request) 
 
 	return carsOnPage, pageNumbers
 }
+
+func getCarDetails(carsOnPage []Car, w http.ResponseWriter, r* http.Request) ([]CarDetail, error) {
+	cars := []CarDetail{}
+	var detail CarDetail
+
+	//get all details for each car in carsFound
+	for i := range carsOnPage {
+		manufacturerDetails,err:= getCarManufacturer(strconv.Itoa(carsOnPage[i].ManufacturerID))
+		if err != nil {
+			http.Error(w, "error getting manufacturer", http.StatusInternalServerError)
+			return cars, err
+		}
+		categoryDetails,err:= getCarCategory(strconv.Itoa(carsOnPage[i].CategoryID))
+		if err != nil {
+			http.Error(w, "error getting category", http.StatusInternalServerError)
+			return cars, err
+		}
+	
+   	 	detail = CarDetail{
+       	 		Car: carsOnPage[i],
+        		Manufacturer: manufacturerDetails,
+        		Category: categoryDetails,
+				Years: Years,
+    		}
+
+
+    		cars = append(cars, detail)
+    }
+
+	return cars, nil
+}
