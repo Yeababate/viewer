@@ -1,59 +1,11 @@
 package main
 
 import (
-	"fmt"
 	"net/http"
 	"io"
 	"encoding/json"
-	"strings"
 	"strconv"
 )
-
-type Car struct {
-	Id int `json:"id"`
-	Name string `json:"name"`
-	ManufacturerID int `json:"manufacturerId"` 
-	CategoryID int `json:"categoryId"`
-	Year int `json:"year"`
-	Specifications Specifications `json:"specifications"`
-	Image string `json:"image"`
-}
-
-type Specifications struct {
-	Engine string `json:"engine"`
-	Horsepower int `json:"horsepower"`
-	Transmission string `json:"transmission"`
-	Drivetrain string `json:"drivetrain"`
-}
-
-type Manufacturer struct {
-	Id int `json:"id"`
-	Name string `json:"name"`
-	Country string `json:"country"`
-	FoundingYear int `json:"FoundingYear"`
-}
-
-type Category struct {
-	Id int `json:"id"`
-	Name string `json:"name"`
-}
-
-type HomeData struct {
-	Cars any
-	Manufacturers []Manufacturer
-	Categories []Category
-	Years []int
-	PageNumbers []int
-	SearchOn bool
-	FilterOn bool
-}
-
-type CarDetail struct {
-        Car          Car
-        Manufacturer Manufacturer
-        Category     Category
-		Years []int
-    }
 
 
 func getCars() ([]Car, error) {
@@ -182,47 +134,6 @@ func getCarCategory(car string) (Category, error) {
 	return category, nil
 }
 
-func getSearchedCar(term string) ([]Car, error) {
-	//strings.Fields() splits strings around whitespace chars (incl mult spaces, tabs, newlines)
-	searchTerms := strings.Fields(strings.ToLower(term))
-	
-	//[]Car in case more than one car is found by search
-	var carsFound []Car
-	var name string
-	var year string
-	if len(searchTerms) == 1 {
-		for _,car := range CarsData {
-			name = strings.ToLower(car.Name)
-			year = strconv.Itoa(car.Year)
-			if strings.Contains(name, term)||strings.Contains(year,term) {
-				carsFound = append(carsFound, car)
-			}
-		}
-	} else {
-	for _,car := range CarsData {
-		name = strings.ToLower(car.Name)
-		year = strconv.Itoa(car.Year)
-		matchCount := 0
-		for _,term := range searchTerms {
-			if strings.Contains(name, term) || strings.Contains(year,term) {
-				matchCount += 1
-			}
-			
-		}
-		if matchCount == 2 {
-			carsFound = append(carsFound, car)
-		}
-		matchCount = 0
-	}
-	}
-	if len(carsFound)<1 {
-		return []Car{}, fmt.Errorf("car not found")
-	} 
-	
-	return carsFound, nil
-
-}
-
 func getYears(cars []Car) []int {
     yearMap := map[int]bool{}
     var years []int
@@ -235,24 +146,95 @@ func getYears(cars []Car) []int {
     return years
 }
 
-func filter(cars []Car) []Car{
-    /*manufacturer := r.URL.Query().Get("manufacturer")
-    category := r.URL.Query().Get("category")
-    year := r.URL.Query().Get("year")*/
+func getManufacturerMap(manufacturers []Manufacturer) map[int]string {
+	manufacturerMap := make(map[int]string)
+	for i,_ := range manufacturers {
+		manufacturerMap[manufacturers[i].Id] = manufacturers[i].Name
+	}
 
-    var filtered []Car
-    for _, car := range cars {
-        if Filters.Manufacturer != "" && strconv.Itoa(car.ManufacturerID) != Filters.Manufacturer {
-            continue
-        }
-        if Filters.Category != "" && strconv.Itoa(car.CategoryID) != Filters.Category {
-            continue
-        }
-        if Filters.Year != "" && strconv.Itoa(car.Year) != Filters.Year {
-            continue
-        }
-        filtered = append(filtered, car)
-    }
+	return manufacturerMap
+}
+
+func getCategoryMap(categories []Category) map[int]string {
+	categoryMap := make(map[int]string)
+	for i,_ := range categories {
+		categoryMap[categories[i].Id] = categories[i].Name
+	}
+
+	return categoryMap
+}
+
+func createPages(landingPageCars []Car, w http.ResponseWriter, r* http.Request) ([]Car, []int) {
+	//break cars up into pages
+	var numPages int
+	var pageNumbers []int
+	var pageNum int
+	var index int
+	resultsPerPage := 10
+	overflow := 0
+	var err error
+
+	carsOnPage := landingPageCars
+
+	if len(landingPageCars) > resultsPerPage {
 	
-   return filtered
+	if len(landingPageCars)%resultsPerPage == 0 {
+		numPages = len(landingPageCars)/resultsPerPage
+	} else {
+		numPages = len(landingPageCars)/resultsPerPage + 1
+		overflow = len(landingPageCars)%resultsPerPage
+	}
+
+	for num := range numPages {
+		//start pageNumbers at 1 instead of 0
+		pageNumbers = append(pageNumbers, num+1)
+	}
+	if r.URL.Query().Get("page") != "" {
+		pageNum, err = strconv.Atoi(r.URL.Query().Get("page"))
+		if err != nil {
+			http.Error(w, "error getting page number", http.StatusInternalServerError)
+		}
+		index = (pageNum * resultsPerPage) - resultsPerPage
+	} else {
+		index = 0
+	}
+	if pageNum == len(pageNumbers) && overflow != 0 {
+		carsOnPage = landingPageCars[index:index+overflow]
+	} else {
+		carsOnPage = landingPageCars[index:index+resultsPerPage]
+	}
+}
+
+	return carsOnPage, pageNumbers
+}
+
+func getCarDetails(carsOnPage []Car, w http.ResponseWriter, r* http.Request) ([]CarDetail, error) {
+	cars := []CarDetail{}
+	var detail CarDetail
+
+	//get all details for each car in carsFound
+	for i := range carsOnPage {
+		manufacturerDetails,err:= getCarManufacturer(strconv.Itoa(carsOnPage[i].ManufacturerID))
+		if err != nil {
+			http.Error(w, "error getting manufacturer", http.StatusInternalServerError)
+			return cars, err
+		}
+		categoryDetails,err:= getCarCategory(strconv.Itoa(carsOnPage[i].CategoryID))
+		if err != nil {
+			http.Error(w, "error getting category", http.StatusInternalServerError)
+			return cars, err
+		}
+	
+   	 	detail = CarDetail{
+       	 		Car: carsOnPage[i],
+        		Manufacturer: manufacturerDetails,
+        		Category: categoryDetails,
+				Years: Years,
+    		}
+
+
+    		cars = append(cars, detail)
+    }
+
+	return cars, nil
 }
