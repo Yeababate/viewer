@@ -47,13 +47,13 @@
                         <form action="/" method="GET">
 				{{ if .FilterOn }}
 				<select name="manufacturer">
-					<option value="">{{ .Filters.Manufacturer }}</option>
+					<option value="">{{ .Filters.ManufacturerName }}</option>
                                         {{ range .Manufacturers }}
                                         <option value="{{ .Id }}">{{ .Name }}</option>
                                         {{ end }}
                                 </select>
                                 <select name="category">
-					<option value="">{{ .Filters.Category }}</option>
+					<option value="">{{ .Filters.CategoryName }}</option>
                                         {{ range .Categories  }}
                                         <option value="{{ .Id }}">{{ .Name }}</option>
                                         {{ end }}

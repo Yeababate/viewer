@@ -38,7 +38,7 @@ type HomeData struct {
 	SearchOn bool
 	SearchValue string
 	FilterOn bool
-	Filters struct{Manufacturer string; Category string; Year string}
+	Filters struct{Manufacturer string; ManufacturerName string; Category string; CategoryName string; Year string}
 }
 
 type CarDetail struct {

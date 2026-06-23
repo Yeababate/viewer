@@ -146,12 +146,33 @@ func getYears(cars []Car) []int {
     return years
 }
 
+func getManufacturerMap(manufacturers []Manufacturer) map[int]string {
+	manufacturerMap := make(map[int]string)
+	for i,_ := range manufacturers {
+		manufacturerMap[manufacturers[i].Id] = manufacturers[i].Name
+	}
+
+	return manufacturerMap
+}
+
+func getCategoryMap(categories []Category) map[int]string {
+	categoryMap := make(map[int]string)
+	for i,_ := range categories {
+		categoryMap[categories[i].Id] = categories[i].Name
+	}
+
+	return categoryMap
+}
+
 func createPages(landingPageCars []Car, w http.ResponseWriter, r* http.Request) ([]Car, []int) {
 	//break cars up into pages
 	var numPages int
 	var pageNumbers []int
+	var pageNum int
 	var index int
 	resultsPerPage := 10
+	overflow := 0
+	var err error
 
 	carsOnPage := landingPageCars
 
@@ -161,6 +182,7 @@ func createPages(landingPageCars []Car, w http.ResponseWriter, r* http.Request) 
 		numPages = len(landingPageCars)/resultsPerPage
 	} else {
 		numPages = len(landingPageCars)/resultsPerPage + 1
+		overflow = len(landingPageCars)%resultsPerPage
 	}
 
 	for num := range numPages {
@@ -168,7 +190,7 @@ func createPages(landingPageCars []Car, w http.ResponseWriter, r* http.Request) 
 		pageNumbers = append(pageNumbers, num+1)
 	}
 	if r.URL.Query().Get("page") != "" {
-		pageNum, err := strconv.Atoi(r.URL.Query().Get("page"))
+		pageNum, err = strconv.Atoi(r.URL.Query().Get("page"))
 		if err != nil {
 			http.Error(w, "error getting page number", http.StatusInternalServerError)
 		}
@@ -176,8 +198,11 @@ func createPages(landingPageCars []Car, w http.ResponseWriter, r* http.Request) 
 	} else {
 		index = 0
 	}
-
-	carsOnPage = landingPageCars[index:index+resultsPerPage]
+	if pageNum == len(pageNumbers) && overflow != 0 {
+		carsOnPage = landingPageCars[index:index+overflow]
+	} else {
+		carsOnPage = landingPageCars[index:index+resultsPerPage]
+	}
 }
 
 	return carsOnPage, pageNumbers

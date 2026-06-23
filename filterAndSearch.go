@@ -104,12 +104,19 @@ func checkFilter(landingPageCars []Car, w http.ResponseWriter, r* http.Request) 
 	}
 
 		//look for filter results
+		//IDEA make a map of manufacturers[ID]Name, categories[ID]Name to reduce API calls
 	if  r.URL.Query().Get("manufacturer")!= "" {
 		Filters.Manufacturer = r.URL.Query().Get("manufacturer")
+		//HANDLE HTIS ERROR!!!
+		manufacturerID, _ := strconv.Atoi(Filters.Manufacturer)
+		Filters.ManufacturerName = ManufacturerMap[manufacturerID]
 		filterOn = true
 	}
 	if r.URL.Query().Get("category") != "" {
 		Filters.Category = r.URL.Query().Get("category")
+		//HANDLE THIS ERROR!!!!
+		categoryID,_ := strconv.Atoi(Filters.Category)
+		Filters.CategoryName = CategoryMap[categoryID]
 		filterOn = true
 	}
 	if r.URL.Query().Get("year") != "" {

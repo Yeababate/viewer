@@ -45,6 +45,12 @@ func main(){
 	//wait until above functions complete before continuing
 	wg.Wait()
 
+	//make map of manufacturer names matched with ID
+	ManufacturerMap = getManufacturerMap(Manufacturers)
+
+	//make map of category names matched with ID
+	CategoryMap = getCategoryMap(Categories)
+	
 	fs := http.FileServer(http.Dir("static"))
 	http.Handle("/static/", http.StripPrefix("/static/", fs))
 
