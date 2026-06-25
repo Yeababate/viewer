@@ -7,6 +7,7 @@
     --color-text-primary: #e0e0ff;
     --color-text-secondary: #a8c7fa;
     --color-border: #2a4a7f;
+    --color-user-message: red;
 }
 
 .lw { font-size: 60px; font-family: Arial, Helvetica, sans-serif; }
@@ -236,6 +237,21 @@ body {
 
 .Search button:hover {
     opacity: 0.85;
+}
+
+.clear {
+    margin: 0px 0px 0px 10px;
+}
+
+.searchMessage {
+    display: flex;
+    justify-content: center;
+    margin: -10px 0px 20px 0px;
+}
+
+.searchMessage span {
+    color: var(--color-user-message);
+    font-size: 1.2em;
 }
 
 .Submit {

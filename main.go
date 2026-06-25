@@ -5,7 +5,7 @@ import (
 	"html/template"
 	"log"
 	"net/http"
-	//"os"
+	"os"
 	"os/signal"
 	"sync"
 	"syscall"
@@ -15,6 +15,9 @@ import (
 var tpl *template.Template
 
 func main(){
+	//set error logging to stdout
+	log.SetOutput(os.Stdout)
+	
 	var err error
 	//use WaitGroup to wait for all goroutines fetching API data to complete before starting server
         var wg sync.WaitGroup
@@ -56,18 +59,9 @@ func main(){
 
 	tpl,_ = tpl.ParseGlob("templates/*html")
 
-	//ONLY FOR TESTING
-	//http.HandleFunc("GET /test", testHandler)
-	
 	Years = getYears(CarsData)
 	http.HandleFunc("/", homeHandler)
 	http.HandleFunc("GET /car/{id}", carDetailHandler)
-	// http.HandleFunc("GET /models/", allmodelsHandler)
-	// http.HandleFunc("GET /models/{id}", modelsHandler)
-	// http.HandleFunc("GET /manufacturers", allManufacturersHandler)
-	// http.HandleFunc("GET /manufacturers/{id}", manufacturersHandler)
-	// http.HandleFunc("GET /categories", allCategoriesHandler)
-	// http.HandleFunc("GET /categories/{id}", categoriesHandler)
 
 	server := &http.Server{
 		Addr: ":8080",

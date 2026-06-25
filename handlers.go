@@ -14,9 +14,10 @@ func homeHandler(w http.ResponseWriter, r *http.Request) {
 
 	landingPageCars := CarsData
 	var searchOn bool
+	var notFound bool
 	var filterOn bool
 
-	landingPageCars, searchOn = checkSearch(landingPageCars, w, r)
+	landingPageCars, searchOn, notFound = checkSearch(landingPageCars, w, r)
 
 	landingPageCars, filterOn = checkFilter(landingPageCars, w, r)
 
@@ -30,6 +31,7 @@ func homeHandler(w http.ResponseWriter, r *http.Request) {
 		PageNumbers: pageNumbers,
 		SearchOn: searchOn,
 		SearchValue: SearchValue,
+		NotFound: notFound,
 		FilterOn: filterOn,
 		Filters: Filters,
 	}
@@ -40,12 +42,13 @@ func homeHandler(w http.ResponseWriter, r *http.Request) {
 func carDetailHandler(w http.ResponseWriter, r *http.Request){
 	//var carsFound []Car
 	var searchOn bool
+	var notFound bool
 	var filterOn bool
 	//var err error
 
 	carsFound := CarsData
 
-	carsFound, searchOn = checkSearch(carsFound, w, r)
+	carsFound, searchOn, notFound = checkSearch(carsFound, w, r)
 
 	carsFound, filterOn = checkFilter(carsFound, w, r)
 
@@ -71,6 +74,7 @@ func carDetailHandler(w http.ResponseWriter, r *http.Request){
 			PageNumbers: pageNumbers,
 			SearchOn: searchOn,
 			SearchValue: SearchValue,
+			NotFound: notFound,
 			FilterOn: filterOn,
 			Filters: Filters,
 		}

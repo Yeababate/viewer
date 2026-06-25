@@ -39,10 +39,16 @@
 		        </form>
 			{{ if .SearchOn }}
 			<form action="/" method="GET">
-				<button type="submit" name="clearSearch" value="clear">Clear</button>
+				<button type="submit" class="clear" name="clearSearch" value="clear">Clear</button>
 			</form>
 			{{ end }}
+
                 </search>
+                <div class="searchMessage">
+                        {{ if .NotFound }}
+                        <span>No results for this search term. Please try again.</span>
+                        {{ end }}
+                </div>
                 <section class="filter">
                         <form action="/" method="GET">
 				{{ if .FilterOn }}
@@ -88,7 +94,7 @@
                         </form>
 			{{ if .FilterOn }}
 			<form action="/" method="GET">
-				<button type="submit" name="clearFilter" value="clear">Clear Filter</button>
+				<button type="submit" class="clear" name="clearFilter" value="clear">Clear Filter</button>
 			</form>
 			{{ end }}
                          

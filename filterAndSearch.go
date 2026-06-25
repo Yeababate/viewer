@@ -3,11 +3,12 @@ package main
 import (
 	"net/http"
 	"strings"
-	"fmt"
+	//"fmt"
 	"strconv"
 )
 
-func getSearchedCars(term string) ([]Car, error) {
+func getSearchedCars(term string) ([]Car, bool) {
+	var notFound bool
 	//strings.Fields() splits strings around whitespace chars (incl mult spaces, tabs, newlines)
 	searchTerms := strings.Fields(strings.ToLower(term))
 	
@@ -41,16 +42,17 @@ func getSearchedCars(term string) ([]Car, error) {
 	}
 	}
 	if len(carsFound)<1 {
-		return []Car{}, fmt.Errorf("car not found")
+		notFound = true
+		return []Car{}, notFound
 	} 
 	
-	return carsFound, nil
+	return carsFound, notFound
 
 }
 
-func checkSearch(landingPageCars []Car, w http.ResponseWriter, r *http.Request) ([]Car, bool) {
+func checkSearch(landingPageCars []Car, w http.ResponseWriter, r *http.Request) ([]Car, bool, bool) {
 	var searchOn bool
-	var err error
+	var notFound bool
 	//check if Clear Search button clicked
 	if r.FormValue("clearSearch") == "clear" {
 		SearchValue = ""
@@ -63,15 +65,14 @@ func checkSearch(landingPageCars []Car, w http.ResponseWriter, r *http.Request) 
 
 	}
 	if SearchValue != "" {
-        	landingPageCars, err = getSearchedCars(SearchValue)
-        	if err != nil {
-		 	http.Error(w, "car not found", http.StatusInternalServerError)
-                	 return landingPageCars, searchOn
+        	landingPageCars, notFound = getSearchedCars(SearchValue)
+        	if notFound {
+                	 notFound = true
         	}
 		searchOn = true
 	}
 
-	return landingPageCars, searchOn
+	return landingPageCars, searchOn, notFound
 }
 
 func getFilteredCars(cars []Car) []Car{

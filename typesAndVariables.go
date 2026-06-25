@@ -37,6 +37,7 @@ type HomeData struct {
 	PageNumbers []int
 	SearchOn bool
 	SearchValue string
+	NotFound bool
 	FilterOn bool
 	Filters struct{Manufacturer string; ManufacturerName string; Category string; CategoryName string; Year string}
 }
