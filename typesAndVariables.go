@@ -1,52 +1,64 @@
 package main
 
 type Car struct {
-	Id int `json:"id"`
-	Name string `json:"name"`
-	ManufacturerID int `json:"manufacturerId"` 
-	CategoryID int `json:"categoryId"`
-	Year int `json:"year"`
+	Id             int            `json:"id"`
+	Name           string         `json:"name"`
+	ManufacturerID int            `json:"manufacturerId"`
+	CategoryID     int            `json:"categoryId"`
+	Year           int            `json:"year"`
 	Specifications Specifications `json:"specifications"`
-	Image string `json:"image"`
+	Image          string         `json:"image"`
 }
 
 type Specifications struct {
-	Engine string `json:"engine"`
-	Horsepower int `json:"horsepower"`
+	Engine       string `json:"engine"`
+	Horsepower   int    `json:"horsepower"`
 	Transmission string `json:"transmission"`
-	Drivetrain string `json:"drivetrain"`
+	Drivetrain   string `json:"drivetrain"`
 }
 
 type Manufacturer struct {
-	Id int `json:"id"`
-	Name string `json:"name"`
-	Country string `json:"country"`
-	FoundingYear int `json:"FoundingYear"`
+	Id           int    `json:"id"`
+	Name         string `json:"name"`
+	Country      string `json:"country"`
+	FoundingYear int    `json:"FoundingYear"`
 }
 
 type Category struct {
-	Id int `json:"id"`
+	Id   int    `json:"id"`
 	Name string `json:"name"`
 }
 
 type HomeData struct {
-	Cars any
+	Cars          any
 	Manufacturers []Manufacturer
-	Categories []Category
-	Years []int
-	PageNumbers []int
-	SearchOn bool
-	SearchValue string
-	FilterOn bool
-	Filters struct{Manufacturer string; ManufacturerName string; Category string; CategoryName string; Year string}
+	Categories    []Category
+	Years         []int
+	PageNumbers   []int
+	SearchOn      bool
+	SearchValue   string
+	FilterOn      bool
+	Filters       struct {
+		Manufacturer     string
+		ManufacturerName string
+		Category         string
+		CategoryName     string
+		Year             string
+	}
 }
 
 type CarDetail struct {
-        Car          Car
-        Manufacturer Manufacturer
-        Category     Category
-		Years []int
-    }
+	Car          Car
+	Manufacturer Manufacturer
+	Category     Category
+	Years        []int
+}
+
+type CompareData struct {
+	Cars         []CarDetail
+	SelectedCars []CarDetail
+	CompareError string
+}
 
 var CarsData []Car
 var Manufacturers []Manufacturer
@@ -56,11 +68,11 @@ var ManufacturerMap map[int]string
 var CategoryMap map[int]string
 
 var Filters struct {
-	Manufacturer string
+	Manufacturer     string
 	ManufacturerName string
-	Category string
-	CategoryName string
-	Year string
+	Category         string
+	CategoryName     string
+	Year             string
 }
 
 var SearchValue string

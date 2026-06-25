@@ -1,10 +1,12 @@
 package main
+
 import (
 	"context"
 	//"fmt"
 	"html/template"
 	"log"
 	"net/http"
+
 	//"os"
 	"os/signal"
 	"sync"
@@ -14,10 +16,10 @@ import (
 
 var tpl *template.Template
 
-func main(){
+func main() {
 	var err error
 	//use WaitGroup to wait for all goroutines fetching API data to complete before starting server
-        var wg sync.WaitGroup
+	var wg sync.WaitGroup
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
@@ -29,7 +31,7 @@ func main(){
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
-        	Manufacturers, err = getManufacturers()
+		Manufacturers, err = getManufacturers()
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -37,7 +39,7 @@ func main(){
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
-        	Categories, err = getCategories()
+		Categories, err = getCategories()
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -50,17 +52,18 @@ func main(){
 
 	//make map of category names matched with ID
 	CategoryMap = getCategoryMap(Categories)
-	
+
 	fs := http.FileServer(http.Dir("static"))
 	http.Handle("/static/", http.StripPrefix("/static/", fs))
 
-	tpl,_ = tpl.ParseGlob("templates/*html")
+	tpl, _ = tpl.ParseGlob("templates/*html")
 
 	//ONLY FOR TESTING
 	//http.HandleFunc("GET /test", testHandler)
-	
+
 	Years = getYears(CarsData)
 	http.HandleFunc("/", homeHandler)
+	http.HandleFunc("/compareCar", compareCarHandler)
 	http.HandleFunc("GET /car/{id}", carDetailHandler)
 	// http.HandleFunc("GET /models/", allmodelsHandler)
 	// http.HandleFunc("GET /models/{id}", modelsHandler)
@@ -70,11 +73,11 @@ func main(){
 	// http.HandleFunc("GET /categories/{id}", categoriesHandler)
 
 	server := &http.Server{
-		Addr: ":8080",
+		Addr:    ":8080",
 		Handler: nil,
 	}
 
-	go func () {
+	go func() {
 		log.Println("Server is running")
 		if err = server.ListenAndServe(); err != nil && err != http.ErrServerClosed {
 			log.Fatal(err)
@@ -97,7 +100,7 @@ func main(){
 	if err = server.Shutdown(ctx); err != nil {
 		log.Fatalf("Forced shutdown: %s", err)
 	}
-	
+
 	//if no force quit, server shuts down once all ongoing tasks are finished
 	log.Println("Server exited gracefully")
 
