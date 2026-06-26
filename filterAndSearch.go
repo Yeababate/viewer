@@ -94,7 +94,7 @@ func getFilteredCars(cars []Car) []Car{
    return filtered
 }
 
-func checkFilter(landingPageCars []Car, w http.ResponseWriter, r* http.Request) ([]Car, bool) {
+func checkFilter(landingPageCars []Car, w http.ResponseWriter, r* http.Request) ([]Car, bool, error) {
 	var filterOn bool
 
 	//check if Clear Filter button clicked
@@ -104,19 +104,22 @@ func checkFilter(landingPageCars []Car, w http.ResponseWriter, r* http.Request) 
 		Filters.Year = ""
 	}
 
-		//look for filter results
-		//IDEA make a map of manufacturers[ID]Name, categories[ID]Name to reduce API calls
+	//look for filter results
 	if  r.URL.Query().Get("manufacturer")!= "" {
 		Filters.Manufacturer = r.URL.Query().Get("manufacturer")
-		//HANDLE HTIS ERROR!!!
-		manufacturerID, _ := strconv.Atoi(Filters.Manufacturer)
+		manufacturerID, err := strconv.Atoi(Filters.Manufacturer)
+		if err != nil {
+			return landingPageCars, filterOn, err
+		}
 		Filters.ManufacturerName = ManufacturerMap[manufacturerID]
 		filterOn = true
 	}
 	if r.URL.Query().Get("category") != "" {
 		Filters.Category = r.URL.Query().Get("category")
-		//HANDLE THIS ERROR!!!!
-		categoryID,_ := strconv.Atoi(Filters.Category)
+		categoryID, err := strconv.Atoi(Filters.Category)
+		if err != nil {
+			return landingPageCars, filterOn, err
+		}
 		Filters.CategoryName = CategoryMap[categoryID]
 		filterOn = true
 	}
@@ -130,7 +133,7 @@ func checkFilter(landingPageCars []Car, w http.ResponseWriter, r* http.Request) 
 		filterOn = true
 	}
 
-	return landingPageCars, filterOn
+	return landingPageCars, filterOn, nil
 
 
 	}

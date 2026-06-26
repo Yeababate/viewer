@@ -17,8 +17,6 @@
         <nav class="heading">
                 <ol>
                         <li class="heading"><a href="/">Home</a></li>
-                        <li class="heading"><a href="#">Model Details</a></li>
-                        <li class="heading"><a href="#">Compare Cars</a></li>
                 </ol>
         </nav>
         </div>
@@ -122,13 +120,16 @@
                         </a>       
 			{{ end }}
                         </div>
-                    </div>
-                </section>
+                    
 
-		<section class="page-buttons">
-		     {{ range .PageNumbers }}
-		     <a href="/?page={{ . }}">{{ . }}</a>
-		     {{ end }}
+		<div class="page-num-container">
+			<div class="page-buttons">
+		     		{{ range .PageNumbers }}
+		     		<a href="/?page={{ . }}">{{ . }}</a>
+		    		 {{ end }}
+			</div>
+		</div>
+		</div>
 			
 		</section>
 

@@ -172,12 +172,10 @@ func getCarDetails(carsOnPage []Car, w http.ResponseWriter, r* http.Request) ([]
 	for i := range carsOnPage {
 		manufacturerDetails,err:= getCarManufacturer(strconv.Itoa(carsOnPage[i].ManufacturerID))
 		if err != nil {
-			http.Error(w, "error getting manufacturer", http.StatusInternalServerError)
 			return cars, err
 		}
 		categoryDetails,err:= getCarCategory(strconv.Itoa(carsOnPage[i].CategoryID))
 		if err != nil {
-			http.Error(w, "error getting category", http.StatusInternalServerError)
 			return cars, err
 		}
 	
