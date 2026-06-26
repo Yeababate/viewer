@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Compare Cars</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <div class="top-bar">
+        <header>
+            <h1><a href="/">Find A Car</a></h1>
+        </header>
+        <nav class="heading">
+            <ol>
+                <li class="heading"><a href="/">Home</a></li>
+            </ol>
+        </nav>
+    </div>
+
+    <main>
+        <form id="compareForm" action="/compareCar" method="POST">
+            <section class="comparison-results">
+            <div class="comparison-grid">
+                {{ range .SelectedCars }}
+                <div class="comparison-card">
+                    <div class="car-detail">
+                        <img src="/static/img/{{ .Car.Image }}" alt="{{ .Car.Name }}">
+                        <h2>{{ .Car.Name }}</h2>
+                        <p><strong>Year:</strong> {{ .Car.Year }}</p>
+
+                        <h3>Specifications</h3>
+                        <p><strong>Engine:</strong> {{ .Car.Specifications.Engine }}</p>
+                        <p><strong>Horsepower:</strong> {{ .Car.Specifications.Horsepower }}</p>
+                        <p><strong>Transmission:</strong> {{ .Car.Specifications.Transmission }}</p>
+                        <p><strong>Drivetrain:</strong> {{ .Car.Specifications.Drivetrain }}</p>
+
+                        <h3>Manufacturer</h3>
+                        <p><strong>Name:</strong> {{ .Manufacturer.Name }}</p>
+                        <p><strong>Country:</strong> {{ .Manufacturer.Country }}</p>
+
+                        <h3>Category</h3>
+                        <p>{{ .Category.Name }}</p>
+                    </div>
+                </div>
+                {{ end }}
+            </div>
+        </section>
+        </form>
+
+    </main>
+</body>
+</html>

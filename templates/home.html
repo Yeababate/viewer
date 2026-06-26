@@ -18,7 +18,6 @@
                 <ol>
                         <li class="heading"><a href="/">Home</a></li>
                         <li class="heading"><a href="#">Model Details</a></li>
-                        <li class="heading"><a href="#">Compare Cars</a></li>
                 </ol>
         </nav>
         </div>
@@ -26,7 +25,7 @@
         <main>
                 <section class="headline">
                     <h2 class="h2">Find Your Next Car</h2>
-                    <p class="subheading">A tagline of some kind</p>
+                    <p class="subheading">Explore every make, model, and year in one place</p>
                 </section>
                 <search class="Search"> 
 		        <form action="/">
@@ -86,45 +85,62 @@
 				{{ end }}
                                 <button type="submit">Filter</button>
                         </form>
-			{{ if .FilterOn }}
+                        {{ if .FilterOn }}
 			<form action="/" method="GET">
 				<button type="submit" name="clearFilter" value="clear">Clear Filter</button>
 			</form>
 			{{ end }}
+                        <section class="compare-button">
+                        <p>Select 2 cars to compare</p>
+                        <button form="compareForm"type="submit" class="compare-submit" disabled>
+                            Compare Selected
+                        </button>
+                        </section>
                          
                 </section>
-                <section class="car-display">
-                    <div class="border">
-                       
-                        <div class="car-container">
-
-			{{ range .Cars }}
-                        <a href="/car/{{ .Id }}">
-                            <div class="car-border">
-                            
-                                <div class="image-box">
-				        <img src="/static/img/{{ .Image }}" alt="{{ .Name }}">
+                <form id="compareForm" action="/compareCar" method="POST">
+                    <section class="car-display">
+                        <div class="border">
+                            <div class="car-container">
+                        {{ range .Cars }}
+                        <div class="car-card">
+                            <a href="/car/{{ .Id }}" class="car-link">
+                                <div class="car-border">
+                                    <div class="image-box">
+                                        <img src="/static/img/{{ .Image }}" alt="{{ .Name }}">
+                                    </div>
+                                    <div class="text-box">
+                                        <span>{{ .Name }}</span>
+                                        <br>
+                                        <span>{{ .Year }}</span>
+                                         <label class="checkbox-label">
+                                        <input type="checkbox" name="carIds" value="{{ .Id }}" />
+                                        </label>
+                                    </div>
                                 </div>
-                                <div class="text-box">
-					<span>{{ .Name }}</span>
-					<BR>
-					<span>{{ .Year }}</span>
-
-                                </div>
-                            
-                            </div>
-                        </a>       
-			{{ end }}
+                            </a>
+                           
                         </div>
-                    </div>
-                </section>
+                        {{ end }}
+                            </div>
+                        </div>
+                    </section>
 
-		<section class="page-buttons">
-		     {{ range .PageNumbers }}
-		     <a href="/?page={{ . }}">{{ . }}</a>
-		     {{ end }}
-			
-		</section>
+                    <section class="page-buttons">
+                         {{ range .PageNumbers }}
+                         <a href="/?page={{ . }}">{{ . }}</a>
+                         {{ end }}
+                    </section>
+
+                    
+                </form>
+        </main>
+        <footer>
+        </footer>
+</body>
+</html>
+                    </section>
+                </form>
 
 
         </main>
@@ -136,3 +152,26 @@
 </body>
 </html>
 
+<script>
+const form = document.getElementById('compareForm');
+const btn = document.querySelector('.compare-submit');
+
+function update() {
+  const boxes = form.querySelectorAll('input[name="carIds"]');
+  let count = 0;
+
+  for (let i = 0; i < boxes.length; i++) {
+    if (boxes[i].checked) {
+      count ++;
+    }
+  }
+
+  if (count === 2) {
+    btn.disabled = false;
+  } else {
+    btn.disabled = true;
+  }
+}
+
+form.addEventListener('change', update);
+</script>

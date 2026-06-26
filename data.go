@@ -1,12 +1,11 @@
 package main
 
 import (
-	"net/http"
-	"io"
 	"encoding/json"
+	"io"
+	"net/http"
 	"strconv"
 )
-
 
 func getCars() ([]Car, error) {
 	url := "http://localhost:3000/api/models"
@@ -20,54 +19,54 @@ func getCars() ([]Car, error) {
 		return nil, errRead
 	}
 	var cars []Car
-    err = json.Unmarshal(body, &cars)
-    if err != nil {
-        return nil, err
-    }
+	err = json.Unmarshal(body, &cars)
+	if err != nil {
+		return nil, err
+	}
 
 	return cars, nil
 }
 
 func getManufacturers() ([]Manufacturer, error) {
-        url := "http://localhost:3000/api/manufacturers/"
-        resp, err := http.Get(url)
-        if err != nil {
-                return nil, err
-        }
+	url := "http://localhost:3000/api/manufacturers/"
+	resp, err := http.Get(url)
+	if err != nil {
+		return nil, err
+	}
 
-        body, errRead := io.ReadAll(resp.Body)
-        if errRead != nil {
-                return nil, errRead
-        }
+	body, errRead := io.ReadAll(resp.Body)
+	if errRead != nil {
+		return nil, errRead
+	}
 
-        var manufacturers []Manufacturer
-        err = json.Unmarshal(body, &manufacturers)
-        if err != nil {
-                return nil, err
-        }
+	var manufacturers []Manufacturer
+	err = json.Unmarshal(body, &manufacturers)
+	if err != nil {
+		return nil, err
+	}
 
-        return manufacturers, nil
+	return manufacturers, nil
 }
 
 func getCategories() ([]Category, error) {
-        url := "http://localhost:3000/api/categories"
-        resp, err := http.Get(url)
-        if err != nil {
-                return nil, err
-        }
+	url := "http://localhost:3000/api/categories"
+	resp, err := http.Get(url)
+	if err != nil {
+		return nil, err
+	}
 
-        body, errRead := io.ReadAll(resp.Body)
-        if errRead != nil {
-                return nil, errRead
-        }
+	body, errRead := io.ReadAll(resp.Body)
+	if errRead != nil {
+		return nil, errRead
+	}
 
-        var categories []Category
-        err = json.Unmarshal(body, &categories)
-        if err != nil {
-                return nil, err
-        }
+	var categories []Category
+	err = json.Unmarshal(body, &categories)
+	if err != nil {
+		return nil, err
+	}
 
-        return categories, nil
+	return categories, nil
 }
 
 func getCarModel(id string) (Car, error) {
@@ -112,7 +111,6 @@ func getCarManufacturer(car string) (Manufacturer, error) {
 	return manufacturer, nil
 }
 
-
 func getCarCategory(car string) (Category, error) {
 	url := "http://localhost:3000/api/categories/" + car
 	resp, errResp := http.Get(url)
@@ -135,20 +133,20 @@ func getCarCategory(car string) (Category, error) {
 }
 
 func getYears(cars []Car) []int {
-    yearMap := map[int]bool{}
-    var years []int
-    for _, car := range cars {
-        if !yearMap[car.Year] {
-            yearMap[car.Year] = true
-            years = append(years, car.Year)
-        }
-    }
-    return years
+	yearMap := map[int]bool{}
+	var years []int
+	for _, car := range cars {
+		if !yearMap[car.Year] {
+			yearMap[car.Year] = true
+			years = append(years, car.Year)
+		}
+	}
+	return years
 }
 
 func getManufacturerMap(manufacturers []Manufacturer) map[int]string {
 	manufacturerMap := make(map[int]string)
-	for i,_ := range manufacturers {
+	for i, _ := range manufacturers {
 		manufacturerMap[manufacturers[i].Id] = manufacturers[i].Name
 	}
 
@@ -157,14 +155,14 @@ func getManufacturerMap(manufacturers []Manufacturer) map[int]string {
 
 func getCategoryMap(categories []Category) map[int]string {
 	categoryMap := make(map[int]string)
-	for i,_ := range categories {
+	for i, _ := range categories {
 		categoryMap[categories[i].Id] = categories[i].Name
 	}
 
 	return categoryMap
 }
 
-func createPages(landingPageCars []Car, w http.ResponseWriter, r* http.Request) ([]Car, []int) {
+func createPages(landingPageCars []Car, w http.ResponseWriter, r *http.Request) ([]Car, []int) {
 	//break cars up into pages
 	var numPages int
 	var pageNumbers []int
@@ -177,64 +175,63 @@ func createPages(landingPageCars []Car, w http.ResponseWriter, r* http.Request) 
 	carsOnPage := landingPageCars
 
 	if len(landingPageCars) > resultsPerPage {
-	
-	if len(landingPageCars)%resultsPerPage == 0 {
-		numPages = len(landingPageCars)/resultsPerPage
-	} else {
-		numPages = len(landingPageCars)/resultsPerPage + 1
-		overflow = len(landingPageCars)%resultsPerPage
-	}
 
-	for num := range numPages {
-		//start pageNumbers at 1 instead of 0
-		pageNumbers = append(pageNumbers, num+1)
-	}
-	if r.URL.Query().Get("page") != "" {
-		pageNum, err = strconv.Atoi(r.URL.Query().Get("page"))
-		if err != nil {
-			http.Error(w, "error getting page number", http.StatusInternalServerError)
+		if len(landingPageCars)%resultsPerPage == 0 {
+			numPages = len(landingPageCars) / resultsPerPage
+		} else {
+			numPages = len(landingPageCars)/resultsPerPage + 1
+			overflow = len(landingPageCars) % resultsPerPage
 		}
-		index = (pageNum * resultsPerPage) - resultsPerPage
-	} else {
-		index = 0
+
+		for num := range numPages {
+			//start pageNumbers at 1 instead of 0
+			pageNumbers = append(pageNumbers, num+1)
+		}
+		if r.URL.Query().Get("page") != "" {
+			pageNum, err = strconv.Atoi(r.URL.Query().Get("page"))
+			if err != nil {
+				http.Error(w, "error getting page number", http.StatusInternalServerError)
+			}
+			index = (pageNum * resultsPerPage) - resultsPerPage
+		} else {
+			index = 0
+		}
+		if pageNum == len(pageNumbers) && overflow != 0 {
+			carsOnPage = landingPageCars[index : index+overflow]
+		} else {
+			carsOnPage = landingPageCars[index : index+resultsPerPage]
+		}
 	}
-	if pageNum == len(pageNumbers) && overflow != 0 {
-		carsOnPage = landingPageCars[index:index+overflow]
-	} else {
-		carsOnPage = landingPageCars[index:index+resultsPerPage]
-	}
-}
 
 	return carsOnPage, pageNumbers
 }
 
-func getCarDetails(carsOnPage []Car, w http.ResponseWriter, r* http.Request) ([]CarDetail, error) {
+func getCarDetails(carsOnPage []Car, w http.ResponseWriter, r *http.Request) ([]CarDetail, error) {
 	cars := []CarDetail{}
 	var detail CarDetail
 
 	//get all details for each car in carsFound
 	for i := range carsOnPage {
-		manufacturerDetails,err:= getCarManufacturer(strconv.Itoa(carsOnPage[i].ManufacturerID))
+		manufacturerDetails, err := getCarManufacturer(strconv.Itoa(carsOnPage[i].ManufacturerID))
 		if err != nil {
 			http.Error(w, "error getting manufacturer", http.StatusInternalServerError)
 			return cars, err
 		}
-		categoryDetails,err:= getCarCategory(strconv.Itoa(carsOnPage[i].CategoryID))
+		categoryDetails, err := getCarCategory(strconv.Itoa(carsOnPage[i].CategoryID))
 		if err != nil {
 			http.Error(w, "error getting category", http.StatusInternalServerError)
 			return cars, err
 		}
-	
-   	 	detail = CarDetail{
-       	 		Car: carsOnPage[i],
-        		Manufacturer: manufacturerDetails,
-        		Category: categoryDetails,
-				Years: Years,
-    		}
 
+		detail = CarDetail{
+			Car:          carsOnPage[i],
+			Manufacturer: manufacturerDetails,
+			Category:     categoryDetails,
+			Years:        Years,
+		}
 
-    		cars = append(cars, detail)
-    }
+		cars = append(cars, detail)
+	}
 
 	return cars, nil
 }
