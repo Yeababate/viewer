@@ -7,6 +7,7 @@
     --color-text-primary: #e0e0ff;
     --color-text-secondary: #a8c7fa;
     --color-border: #2a4a7f;
+    --color-user-message: red;
 }
 
 body {
@@ -244,6 +245,21 @@ body {
     opacity: 0.85;
 }
 
+.clear {
+    margin: 0px 0px 0px 10px;
+}
+
+.searchMessage {
+    display: flex;
+    justify-content: center;
+    margin: -10px 0px 20px 0px;
+}
+
+.searchMessage span {
+    color: var(--color-user-message);
+    font-size: 1.2em;
+}
+
 .Submit {
     padding: 10px 20px;
     font-size: 1em;
@@ -326,4 +342,45 @@ body {
     padding: 1rem;
     border-radius: 8px;
     background-color: var(--color-bg-card);
+}
+
+.page-num-container {
+	text-align: center;
+	list-style-position: inside;
+	padding: 20px 20px 0px 20px;
+}
+
+.page-buttons {
+	font-size: 1.2em;
+}
+
+.page-buttons a:link{
+	color: var(--color-text-primary);
+}
+
+.page-buttons a:visited{
+	color: var(--color-text-secondary);
+}
+
+.page-buttons a:hover{
+	color: var(--color-accent);
+}
+
+.errorMessage span{
+	color: var(--color-user-message);
+	font-size: 1.2em;
+	display: flex;
+	flex-direction: column;
+	padding: 0px 0px 5px 0px;
+}
+
+.error-bold{
+	font-weight: bold;
+	font-size: 1.3em;
+	padding: 0px 0px 5px 0px;
+}
+
+.error a:link{
+	color: var(--color-text-primary);
+	font-size: 1.2em;
 }

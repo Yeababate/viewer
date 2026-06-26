@@ -1,13 +1,13 @@
 package main
 
 import (
-	"fmt"
 	"net/http"
 	"strconv"
 	"strings"
-)
+	)
 
-func getSearchedCars(term string) ([]Car, error) {
+func getSearchedCars(term string) ([]Car, bool) {
+	var notFound bool
 	//strings.Fields() splits strings around whitespace chars (incl mult spaces, tabs, newlines)
 	searchTerms := strings.Fields(strings.ToLower(term))
 
@@ -40,17 +40,17 @@ func getSearchedCars(term string) ([]Car, error) {
 			matchCount = 0
 		}
 	}
-	if len(carsFound) < 1 {
-		return []Car{}, fmt.Errorf("car not found")
-	}
-
-	return carsFound, nil
-
+	if len(carsFound)<1 {
+		notFound = true
+		return []Car{}, notFound
+	} 
+	
+	return carsFound, notFound
 }
 
-func checkSearch(landingPageCars []Car, w http.ResponseWriter, r *http.Request) ([]Car, bool) {
+func checkSearch(landingPageCars []Car, w http.ResponseWriter, r *http.Request) ([]Car, bool, bool) {
 	var searchOn bool
-	var err error
+	var notFound bool
 	//check if Clear Search button clicked
 	if r.FormValue("clearSearch") == "clear" {
 		SearchValue = ""
@@ -63,15 +63,14 @@ func checkSearch(landingPageCars []Car, w http.ResponseWriter, r *http.Request) 
 
 	}
 	if SearchValue != "" {
-		landingPageCars, err = getSearchedCars(SearchValue)
-		if err != nil {
-			http.Error(w, "car not found", http.StatusInternalServerError)
-			return landingPageCars, searchOn
-		}
+        	landingPageCars, notFound = getSearchedCars(SearchValue)
+        	if notFound {
+                	 notFound = true
+        	}
 		searchOn = true
 	}
 
-	return landingPageCars, searchOn
+	return landingPageCars, searchOn, notFound
 }
 
 func getFilteredCars(cars []Car) []Car {
@@ -93,7 +92,7 @@ func getFilteredCars(cars []Car) []Car {
 	return filtered
 }
 
-func checkFilter(landingPageCars []Car, w http.ResponseWriter, r *http.Request) ([]Car, bool) {
+func checkFilter(landingPageCars []Car, w http.ResponseWriter, r* http.Request) ([]Car, bool, error) {
 	var filterOn bool
 
 	//check if Clear Filter button clicked
@@ -104,18 +103,21 @@ func checkFilter(landingPageCars []Car, w http.ResponseWriter, r *http.Request) 
 	}
 
 	//look for filter results
-	//IDEA make a map of manufacturers[ID]Name, categories[ID]Name to reduce API calls
-	if r.URL.Query().Get("manufacturer") != "" {
+	if  r.URL.Query().Get("manufacturer")!= "" {
 		Filters.Manufacturer = r.URL.Query().Get("manufacturer")
-		//HANDLE HTIS ERROR!!!
-		manufacturerID, _ := strconv.Atoi(Filters.Manufacturer)
+		manufacturerID, err := strconv.Atoi(Filters.Manufacturer)
+		if err != nil {
+			return landingPageCars, filterOn, err
+		}
 		Filters.ManufacturerName = ManufacturerMap[manufacturerID]
 		filterOn = true
 	}
 	if r.URL.Query().Get("category") != "" {
 		Filters.Category = r.URL.Query().Get("category")
-		//HANDLE THIS ERROR!!!!
-		categoryID, _ := strconv.Atoi(Filters.Category)
+		categoryID, err := strconv.Atoi(Filters.Category)
+		if err != nil {
+			return landingPageCars, filterOn, err
+		}
 		Filters.CategoryName = CategoryMap[categoryID]
 		filterOn = true
 	}
@@ -129,6 +131,5 @@ func checkFilter(landingPageCars []Car, w http.ResponseWriter, r *http.Request) 
 		filterOn = true
 	}
 
-	return landingPageCars, filterOn
-
+	return landingPageCars, filterOn, nil
 }

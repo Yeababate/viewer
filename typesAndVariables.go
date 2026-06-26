@@ -32,19 +32,14 @@ type Category struct {
 type HomeData struct {
 	Cars          any
 	Manufacturers []Manufacturer
-	Categories    []Category
-	Years         []int
-	PageNumbers   []int
-	SearchOn      bool
-	SearchValue   string
-	FilterOn      bool
-	Filters       struct {
-		Manufacturer     string
-		ManufacturerName string
-		Category         string
-		CategoryName     string
-		Year             string
-	}
+	Categories []Category
+	Years []int
+	PageNumbers []int
+	SearchOn bool
+	SearchValue string
+	NotFound bool
+	FilterOn bool
+	Filters struct{Manufacturer string; ManufacturerName string; Category string; CategoryName string; Year string}
 }
 
 type CarDetail struct {
