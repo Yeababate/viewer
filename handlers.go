@@ -38,14 +38,15 @@ func homeHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	carsOnPage, pageNumbers := createPages(landingPageCars, w, r)
+	carsOnPage, pageNumbers, currentPage, numberOfPages/*, notBeg, notEnd */:= createPages(landingPageCars, w, r)
+
 
 	data := HomeData{
 		Cars:          carsOnPage,
 		Manufacturers: Manufacturers,
 		Categories: Categories,
 		Years: Years,
-		PageNumbers: pageNumbers,
+		Pagination: Pagination{PageNumbers: pageNumbers, CurrentPage: currentPage, LastPage: numberOfPages, /*NotBeg: notBeg, NotEnd: notEnd*/},
 		SearchOn: searchOn,
 		SearchValue: SearchValue,
 		NotFound: notFound,
@@ -106,9 +107,9 @@ func carDetailHandler(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	carsOnPage, pageNumbers := createPages(carsFound, w, r)
+	//carsOnPage, pageNumbers := createPages(carsFound, w, r)
 
-	cars, errCarDetails := getCarDetails(carsOnPage, w, r)
+	cars, errCarDetails := getCarDetails(carsFound, w, r)
 	if errCarDetails != nil {
 		log.Println(errCarDetails)
 		w.WriteHeader(http.StatusInternalServerError)
@@ -121,7 +122,6 @@ func carDetailHandler(w http.ResponseWriter, r *http.Request) {
 			Manufacturers: Manufacturers,
 			Categories: Categories,
 			Years: Years,
-			PageNumbers: pageNumbers,
 			SearchOn: searchOn,
 			SearchValue: SearchValue,
 			NotFound: notFound,

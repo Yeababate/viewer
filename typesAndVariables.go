@@ -34,7 +34,7 @@ type HomeData struct {
 	Manufacturers []Manufacturer
 	Categories []Category
 	Years []int
-	PageNumbers []int
+	Pagination Pagination
 	SearchOn bool
 	SearchValue string
 	NotFound bool
@@ -53,6 +53,14 @@ type CompareData struct {
 	Cars         []CarDetail
 	SelectedCars []CarDetail
 	CompareError string
+}
+
+type Pagination struct {
+	PageNumbers []int
+	CurrentPage int
+	LastPage int
+	//NotBeg bool
+	//NotEnd bool
 }
 
 var CarsData []Car

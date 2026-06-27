@@ -132,9 +132,25 @@
 
 		<div class="page-num-container">
 			<div class="page-buttons">
-		     		{{ range .PageNumbers }}
+                                {{$currentpage := .Pagination.CurrentPage}}
+                                {{$lastpage := .Pagination.LastPage}}
+                                {{$previouspage := .Pagination.GetPreviousPage $currentpage}}
+                                {{$nextpage := .Pagination.GetNextPage $currentpage}}
+                                {{ if .Pagination.NotBeginning $currentpage }}
+                                <a href="/?page=1"><<</a>
+                                <a href="/?page={{$previouspage}}"><-</a>
+                                {{ end }}
+		     		{{ range .Pagination.PageNumbers }}
+                                {{ if eq . $currentpage }}
+                                <div class="current-page"> {{ . }} </div>
+                                {{ else }}
 		     		<a href="/?page={{ . }}">{{ . }}</a>
 		    		 {{ end }}
+                                 {{ end }}
+                                 {{if .Pagination.NotEnd $currentpage $lastpage}}
+                                <a href="/?page={{$nextpage}}">-></a>
+                                <a href="/?page={{$lastpage}}">>></a>
+                                {{ end }}
 			</div>
 		</div>
 		</div>
