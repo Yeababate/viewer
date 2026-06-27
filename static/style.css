@@ -116,6 +116,29 @@ body {
 
 }
 
+.back-button {
+    display: inline-block;
+    margin: 24px 0 0 20px;
+    padding: 8px 14px;
+    background-color: var(--color-accent);
+    color: var(--color-bg-secondary);
+    text-decoration: none;
+    border-radius: 6px;
+}
+
+.back-button:hover {
+    opacity: 0.85;
+}
+
+.find_car_button{
+    text-decoration: none;
+    color: var( --color-text-primary);
+}
+
+.find_car_button:hover {
+    opacity: 0.85;
+}
+
 .car-detail {
     max-width: 800px;
     margin: 40px auto;
@@ -329,6 +352,7 @@ body {
 
 .comparison-grid {
     display: flex;
+    padding: 8px;
     gap: 2rem;
     justify-content: space-around;
     align-items: flex-start;

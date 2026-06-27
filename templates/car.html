@@ -9,7 +9,7 @@
 <body>
     <div class="top-bar">
         <header>
-            <h1><a href="/">Find A Car</a></h1>
+            <h1><a href="/" class="find_car_button">Find A Car</a></h1>
         </header>
         <nav class="heading">
             <ol>
@@ -19,74 +19,8 @@
     </div>
 
     <main>
-
-    	<search class="Search"> 
-             <form action="/" method="GET">
-	 	 <div class="search_detail">
-	 	 	{{ if .SearchOn }}
-                   	<input type="search" required id="carSearch" name="q" placeholder="{{ .SearchValue }}" aria-label="Search for a car" size="30" />
-                   	{{ else }}
-                   	<input type="search" required id="carSearch" name="q" placeholder="Search for a car" aria-label="Search for a car" size="30" />
-		  	{{ end }}
-                            <button type="submit">Search</button>
-                  </div>
-             </form>
-            {{ if .SearchOn }}
-		<form action="/" method="GET">
-				<button type="submit" name="clearSearch" value="clear">Clear</button>
-			</form>
-			{{ end }}
-        </search>
-        <section class="filter">
-
-            <form action="">
-                     {{ if .FilterOn }}
-                     <select name="manufacturer">
-                     	<option value="">{{ .Filters.ManufacturerName }}</option>
-                     	{{ range .Manufacturers }}
-                     	<option value="{{ .Id }}">{{ .Name }}</option>
-                     	{{ end }}
-                     </select>
-                     <select name="category">
-                     	<option value="">{{ .Filters.CategoryName }}</option>                                        
-                     	{{ range .Categories  }}
-                     	<option value="{{ .Id }}">{{ .Name }}</option>
-                     {{ end }}
-                     </select>
-                     <select name="year">
-                    	 <option value="">{{ .Filters.Year }}</option>
-                    	 {{ range .Years  }}
-                     	<option value="{{ . }}">{{ . }}</option>
-                     {{ end }}
-                     </select>
-                    {{ else }}
-                    <select name="manufacturer">
-                        <option value="">All Manufacturers</option>
-                            {{ range .Manufacturers }}
-                        <option value="{{ .Id }}">{{ .Name }}</option>
-                            {{ end }}
-                    </select>
-                    <select name="category">
-                        <option value="">All Categories</option>
-                            {{ range .Categories  }}
-                        <option value="{{ .Id }}">{{ .Name }}</option>
-                            {{ end }}
-                    </select>
-                    <select name="year">
-                        <option value="">All Years</option>
-                            {{ range .Years  }}
-                        <option value="{{ . }}">{{ . }}</option>
-                            {{ end }}
-                    </select>
-		    {{ end }}
-                    <button type="submit">Filter</button>
-                </form>
-                {{ if .FilterOn }}
-                <form action="/" method="GET">
-                    <button type="submit" name="clearFilter" value="clear">Clear Filter</button>
-                </form>
-                {{ end }}
-                </section>
+        <a href="/" class="back-button">← Back</a>
+        
 	{{range .Cars }}
         <div class="car-detail">
             <img src="/static/img/{{ .Car.Image }}" alt="{{ .Car.Name }}">
