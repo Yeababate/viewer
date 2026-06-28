@@ -38,7 +38,7 @@ The viewer expects these API endpoints:
 
 ```text
 project-root/
-├── api/    
+├── api/
 └── viewer/
 ```
 
@@ -85,9 +85,12 @@ The Cars API is a Node.js/Express app. From the `api` folder:
 | `typesAndVariables.go` | Shared structs and variables |
 | `templates/` | HTML templates |
 | `static/` | CSS and images |
+| `static/img/` | Car images, referenced by templates as `/static/img/{filename}` |
 
 
 
 ## Notes
 
 - This project is a frontend viewer and depends on an external API for its data. If the API is unavailable, the app will not be able to load the car catalog.
+
+- Car images must be placed in `static/img/` for the viewer to display them.
