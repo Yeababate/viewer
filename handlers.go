@@ -102,6 +102,7 @@ func carDetailHandler(w http.ResponseWriter, r *http.Request) {
 		car, errCarModel := getCarModel(id)
 		
 		if errCarModel != nil {
+			log.Println("failed to get car model")
 				w.WriteHeader(http.StatusNotFound)
 				tpl.ExecuteTemplate(w, "error404.html", nil)
 				return
@@ -150,19 +151,26 @@ func carDetailHandler(w http.ResponseWriter, r *http.Request) {
 func compareCarHandler(w http.ResponseWriter, r *http.Request) {
 
 	var selectedCars []CarDetail
-	// compareError := ""
 	if r.Method == "POST" {
 		r.ParseForm()
 		selectedIDs := r.Form["carIds"]
 			for _, idStr := range selectedIDs {
 				carModel, err := getCarModel(idStr)
 				if err != nil {
-					// compareError = "Error loading selected cars, Please try again."
-					selectedCars = nil
-					break
+					continue
 				}
-				manufacturer, _ := getCarManufacturer(strconv.Itoa(carModel.ManufacturerID))
-				category, _ := getCarCategory(strconv.Itoa(carModel.CategoryID))
+				manufacturer, err:= getCarManufacturer(strconv.Itoa(carModel.ManufacturerID))
+				if err != nil{
+					w.WriteHeader(http.StatusInternalServerError)
+    				tpl.ExecuteTemplate(w, "error.html", nil)
+    				return
+				}
+				category, err := getCarCategory(strconv.Itoa(carModel.CategoryID))
+				if err != nil{
+					w.WriteHeader(http.StatusInternalServerError)
+    				tpl.ExecuteTemplate(w, "error.html", nil)
+    				return
+				}
 				selectedCars = append(selectedCars, CarDetail{
 					Car:          carModel,
 					Manufacturer: manufacturer,
@@ -170,11 +178,6 @@ func compareCarHandler(w http.ResponseWriter, r *http.Request) {
 				})
 			}
 	}
-
-	// data := CompareData{
-	// 	SelectedCars: selectedCars,
-	// 	CompareError: compareError,
-	// }
 
 	tpl.ExecuteTemplate(w, "compare.html", selectedCars)
 }
