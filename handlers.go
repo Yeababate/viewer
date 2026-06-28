@@ -8,21 +8,29 @@ import (
 	"log"
 )
 
-
 var bufferPool = sync.Pool {
 	New: func() interface{} {
 		return new(bytes.Buffer) //fresh buffer on demand
 	},
 }
 
+type HomeHandler struct {
+	//Data *APIData
+	Cars []Car
+	Manufacturers []Manufacturer
+	Categories []Category
+	Years []int
+	ManufacturerIDMap map[int]string
+	CategoryIDMap map[int]string
+}
 
-func homeHandler(w http.ResponseWriter, r *http.Request) {
+func (h *HomeHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	if r.URL.Path != "/" {
 		http.NotFound(w, r)
 		return
 	}
 
-	landingPageCars := CarsData
+	landingPageCars := h.Cars
 	var searchOn bool
 	var notFound bool
 	var filterOn bool
@@ -30,7 +38,7 @@ func homeHandler(w http.ResponseWriter, r *http.Request) {
 
 	landingPageCars, searchOn, notFound = checkSearch(landingPageCars, w, r)
 
-	landingPageCars, filterOn, errFilter  = checkFilter(landingPageCars, w, r)
+	landingPageCars, filterOn, errFilter  = checkFilter(landingPageCars, h.ManufacturerIDMap, h.CategoryIDMap, w, r)
 	if errFilter != nil {
 		log.Println(errFilter)
 		w.WriteHeader(http.StatusInternalServerError)
@@ -43,9 +51,9 @@ func homeHandler(w http.ResponseWriter, r *http.Request) {
 
 	data := HomeData{
 		Cars:          carsOnPage,
-		Manufacturers: Manufacturers,
-		Categories: Categories,
-		Years: Years,
+		Manufacturers: h.Manufacturers,
+		Categories: h.Categories,
+		Years: h.Years,
 		Pagination: Pagination{PageNumbers: pageNumbers, CurrentPage: currentPage, LastPage: numberOfPages, /*NotBeg: notBeg, NotEnd: notEnd*/},
 		SearchOn: searchOn,
 		SearchValue: SearchValue,
@@ -75,7 +83,16 @@ func homeHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func carDetailHandler(w http.ResponseWriter, r *http.Request) {
+type CarDetailHandler struct {
+	Cars []Car
+	Manufacturers []Manufacturer
+	Categories []Category
+	Years []int
+	ManufacturerIDMap map[int]string
+	CategoryIDMap map[int]string
+}
+
+func (h* CarDetailHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	//var carsFound []Car
 	var searchOn bool
 	var notFound bool
@@ -83,11 +100,11 @@ func carDetailHandler(w http.ResponseWriter, r *http.Request) {
 	var errFilter error
 	//var err error
 
-	carsFound := CarsData
+	carsFound := h.Cars
 
 	carsFound, searchOn, notFound = checkSearch(carsFound, w, r)
 
-	carsFound, filterOn, errFilter = checkFilter(carsFound, w, r)
+	carsFound, filterOn, errFilter = checkFilter(carsFound, h.ManufacturerIDMap, h.CategoryIDMap, w, r)
 	if errFilter != nil {
 		log.Println(errFilter)
 		w.WriteHeader(http.StatusInternalServerError)
@@ -109,7 +126,7 @@ func carDetailHandler(w http.ResponseWriter, r *http.Request) {
 
 	//carsOnPage, pageNumbers := createPages(carsFound, w, r)
 
-	cars, errCarDetails := getCarDetails(carsFound, w, r)
+	cars, errCarDetails := getCarDetails(carsFound, h.Years, w, r)
 	if errCarDetails != nil {
 		log.Println(errCarDetails)
 		w.WriteHeader(http.StatusInternalServerError)
@@ -119,9 +136,9 @@ func carDetailHandler(w http.ResponseWriter, r *http.Request) {
 
 		data := HomeData{
 			Cars: cars,
-			Manufacturers: Manufacturers,
-			Categories: Categories,
-			Years: Years,
+			Manufacturers: h.Manufacturers,
+			Categories: h.Categories,
+			Years: h.Years,
 			SearchOn: searchOn,
 			SearchValue: SearchValue,
 			NotFound: notFound,
@@ -143,8 +160,14 @@ func carDetailHandler(w http.ResponseWriter, r *http.Request) {
 		buf.WriteTo(w)
 	}
 }
-func compareCarHandler(w http.ResponseWriter, r *http.Request) {
-	carDetails, _ := getCarDetails(CarsData, w, r)
+
+type CompareCarHandler struct {
+	Cars []Car
+	Years []int
+}
+
+func (h *CompareCarHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	carDetails, _ := getCarDetails(h.Cars, h.Years, w, r)
 
 	var selectedCars []CarDetail
 	compareError := ""

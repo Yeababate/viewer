@@ -6,7 +6,7 @@ import (
 	"strings"
 	)
 
-func getSearchedCars(term string) ([]Car, bool) {
+func getSearchedCars(term string, cars []Car) ([]Car, bool) {
 	var notFound bool
 	//strings.Fields() splits strings around whitespace chars (incl mult spaces, tabs, newlines)
 	searchTerms := strings.Fields(strings.ToLower(term))
@@ -16,7 +16,7 @@ func getSearchedCars(term string) ([]Car, bool) {
 	var name string
 	var year string
 	if len(searchTerms) == 1 {
-		for _, car := range CarsData {
+		for _, car := range cars {
 			name = strings.ToLower(car.Name)
 			year = strconv.Itoa(car.Year)
 			if strings.Contains(name, term) || strings.Contains(year, term) {
@@ -24,7 +24,7 @@ func getSearchedCars(term string) ([]Car, bool) {
 			}
 		}
 	} else {
-		for _, car := range CarsData {
+		for _, car := range cars {
 			name = strings.ToLower(car.Name)
 			year = strconv.Itoa(car.Year)
 			matchCount := 0
@@ -63,7 +63,7 @@ func checkSearch(landingPageCars []Car, w http.ResponseWriter, r *http.Request) 
 
 	}
 	if SearchValue != "" {
-        	landingPageCars, notFound = getSearchedCars(SearchValue)
+        	landingPageCars, notFound = getSearchedCars(SearchValue, landingPageCars)
         	if notFound {
                 	 notFound = true
         	}
@@ -92,7 +92,7 @@ func getFilteredCars(cars []Car) []Car {
 	return filtered
 }
 
-func checkFilter(landingPageCars []Car, w http.ResponseWriter, r* http.Request) ([]Car, bool, error) {
+func checkFilter(landingPageCars []Car, ManufacturerMap map[int]string, CategoryMap map[int]string, w http.ResponseWriter, r* http.Request) ([]Car, bool, error) {
 	var filterOn bool
 
 	//check if Clear Filter button clicked

@@ -20,12 +20,15 @@ func main(){
 	log.SetOutput(os.Stdout)
 	
 	var err error
+	var carsData []Car
+	var manufacturers []Manufacturer
+	var categories []Category
 	//use WaitGroup to wait for all goroutines fetching API data to complete before starting server
 	var wg sync.WaitGroup
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
-		CarsData, err = getCars()
+		carsData, err = getCars()
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -33,7 +36,7 @@ func main(){
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
-		Manufacturers, err = getManufacturers()
+		manufacturers, err = getManufacturers()
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -41,7 +44,7 @@ func main(){
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
-		Categories, err = getCategories()
+		categories, err = getCategories()
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -50,20 +53,40 @@ func main(){
 	wg.Wait()
 
 	//make map of manufacturer names matched with ID
-	ManufacturerMap = getManufacturerMap(Manufacturers)
+	manufacturerMap := getManufacturerMap(manufacturers)
 
 	//make map of category names matched with ID
-	CategoryMap = getCategoryMap(Categories)
+	categoryMap := getCategoryMap(categories)
+
+	years := getYears(carsData)
+
+	home := HomeHandler{
+		Cars: carsData,
+		Manufacturers: manufacturers,
+		Categories: categories,
+		Years: years,
+		ManufacturerIDMap: manufacturerMap,
+		CategoryIDMap: categoryMap,
+	}
+
+	detail := CarDetailHandler{
+		Cars: carsData,
+		Manufacturers: manufacturers,
+		Categories: categories,
+		Years: years,
+		ManufacturerIDMap: manufacturerMap,
+		CategoryIDMap: categoryMap,
+	}
 
 	fs := http.FileServer(http.Dir("static"))
 	http.Handle("/static/", http.StripPrefix("/static/", fs))
 
 	tpl, _ = tpl.ParseGlob("templates/*html")
 
-	Years = getYears(CarsData)
-	http.HandleFunc("/", homeHandler)
-	http.HandleFunc("/compareCar", compareCarHandler)
-	http.HandleFunc("GET /car/{id}", carDetailHandler)
+	
+	http.Handle("/", &home)
+	http.Handle("/compareCar", &CompareCarHandler{carsData, years})
+	http.Handle("GET /car/{id}", &detail)
 
 	server := &http.Server{
 		Addr:    ":8080",

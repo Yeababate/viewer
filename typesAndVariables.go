@@ -63,12 +63,12 @@ type Pagination struct {
 	//NotEnd bool
 }
 
-var CarsData []Car
-var Manufacturers []Manufacturer
-var Categories []Category
-var Years []int
-var ManufacturerMap map[int]string
-var CategoryMap map[int]string
+//var CarsData []Car
+//var Manufacturers []Manufacturer
+//var Categories []Category
+//var Years []int
+//var ManufacturerMap map[int]string
+//var CategoryMap map[int]string
 
 var Filters struct {
 	Manufacturer     string
