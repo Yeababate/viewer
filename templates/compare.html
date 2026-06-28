@@ -23,7 +23,7 @@
         <form id="compareForm" action="/compareCar" method="POST">
             <section class="comparison-results">
             <div class="comparison-grid">
-                {{ range .SelectedCars }}
+                {{ range . }}
                 <div class="comparison-card">
                     <div class="car-detail">
                         <img src="/static/img/{{ .Car.Image }}" alt="{{ .Car.Name }}">

@@ -49,10 +49,10 @@ type CarDetail struct {
 	Years        []int
 }
 
-type CompareData struct {
-	SelectedCars []CarDetail
-	CompareError string
-}
+// type CompareData struct {
+// 	SelectedCars []CarDetail
+// 	CompareError string
+// }
 
 var CarsData []Car
 var Manufacturers []Manufacturer

@@ -150,14 +150,14 @@ func carDetailHandler(w http.ResponseWriter, r *http.Request) {
 func compareCarHandler(w http.ResponseWriter, r *http.Request) {
 
 	var selectedCars []CarDetail
-	compareError := ""
+	// compareError := ""
 	if r.Method == "POST" {
 		r.ParseForm()
 		selectedIDs := r.Form["carIds"]
 			for _, idStr := range selectedIDs {
 				carModel, err := getCarModel(idStr)
 				if err != nil {
-					compareError = "Error loading selected cars, Please try again."
+					// compareError = "Error loading selected cars, Please try again."
 					selectedCars = nil
 					break
 				}
@@ -171,10 +171,10 @@ func compareCarHandler(w http.ResponseWriter, r *http.Request) {
 			}
 	}
 
-	data := CompareData{
-		SelectedCars: selectedCars,
-		CompareError: compareError,
-	}
+	// data := CompareData{
+	// 	SelectedCars: selectedCars,
+	// 	CompareError: compareError,
+	// }
 
-	tpl.ExecuteTemplate(w, "compare.html", data)
+	tpl.ExecuteTemplate(w, "compare.html", selectedCars)
 }
