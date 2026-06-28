@@ -162,7 +162,7 @@ func getCategoryMap(categories []Category) map[int]string {
 	return categoryMap
 }
 
-func getCarDetails(carsOnPage []Car, years []int, w http.ResponseWriter, r* http.Request) ([]CarDetail, error) {
+func getCarDetails(carsOnPage []Car, w http.ResponseWriter, r* http.Request) ([]CarDetail, error) {
 	cars := []CarDetail{}
 	var detail CarDetail
 
@@ -181,7 +181,6 @@ func getCarDetails(carsOnPage []Car, years []int, w http.ResponseWriter, r* http
 			Car:          carsOnPage[i],
 			Manufacturer: manufacturerDetails,
 			Category:     categoryDetails,
-			Years:        years,
 		}
 
 		cars = append(cars, detail)

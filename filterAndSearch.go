@@ -48,22 +48,22 @@ func getSearchedCars(term string, cars []Car) ([]Car, bool) {
 	return carsFound, notFound
 }
 
-func checkSearch(landingPageCars []Car, w http.ResponseWriter, r *http.Request) ([]Car, bool, bool) {
+func checkSearch(landingPageCars []Car, h *HomeHandler, w http.ResponseWriter, r *http.Request) ([]Car, bool, bool) {
 	var searchOn bool
 	var notFound bool
 	//check if Clear Search button clicked
 	if r.FormValue("clearSearch") == "clear" {
-		SearchValue = ""
+		h.Search.Value = ""
 	}
 
 	//look for search results
 	if r.FormValue("q") != "" {
-		SearchValue = strings.ToLower(r.FormValue("q"))
+		h.Search.Value = strings.ToLower(r.FormValue("q"))
 		searchOn = true
 
 	}
-	if SearchValue != "" {
-        	landingPageCars, notFound = getSearchedCars(SearchValue, landingPageCars)
+	if h.Search.Value != "" {
+        	landingPageCars, notFound = getSearchedCars(h.Search.Value, landingPageCars)
         	if notFound {
                 	 notFound = true
         	}
@@ -73,17 +73,17 @@ func checkSearch(landingPageCars []Car, w http.ResponseWriter, r *http.Request) 
 	return landingPageCars, searchOn, notFound
 }
 
-func getFilteredCars(cars []Car) []Car {
+func getFilteredCars(cars []Car, h *HomeHandler) []Car {
 
 	var filtered []Car
 	for _, car := range cars {
-		if Filters.Manufacturer != "" && strconv.Itoa(car.ManufacturerID) != Filters.Manufacturer {
+		if h.Filters.Manufacturer != "" && strconv.Itoa(car.ManufacturerID) != h.Filters.Manufacturer {
 			continue
 		}
-		if Filters.Category != "" && strconv.Itoa(car.CategoryID) != Filters.Category {
+		if h.Filters.Category != "" && strconv.Itoa(car.CategoryID) != h.Filters.Category {
 			continue
 		}
-		if Filters.Year != "" && strconv.Itoa(car.Year) != Filters.Year {
+		if h.Filters.Year != "" && strconv.Itoa(car.Year) != h.Filters.Year {
 			continue
 		}
 		filtered = append(filtered, car)
@@ -97,37 +97,37 @@ func checkFilter(landingPageCars []Car, h *HomeHandler, w http.ResponseWriter, r
 
 	//check if Clear Filter button clicked
 	if r.FormValue("clearFilter") == "clear" {
-		Filters.Manufacturer = ""
-		Filters.Category = ""
-		Filters.Year = ""
+		h.Filters.Manufacturer = ""
+		h.Filters.Category = ""
+		h.Filters.Year = ""
 	}
 
 	//look for filter results
 	if  r.URL.Query().Get("manufacturer")!= "" {
-		Filters.Manufacturer = r.URL.Query().Get("manufacturer")
-		manufacturerID, err := strconv.Atoi(Filters.Manufacturer)
+		h.Filters.Manufacturer = r.URL.Query().Get("manufacturer")
+		manufacturerID, err := strconv.Atoi(h.Filters.Manufacturer)
 		if err != nil {
 			return landingPageCars, filterOn, err
 		}
-		Filters.ManufacturerName = h.ManufacturerIDMap[manufacturerID]
+		h.Filters.ManufacturerName = h.ManufacturerIDMap[manufacturerID]
 		filterOn = true
 	}
 	if r.URL.Query().Get("category") != "" {
-		Filters.Category = r.URL.Query().Get("category")
-		categoryID, err := strconv.Atoi(Filters.Category)
+		h.Filters.Category = r.URL.Query().Get("category")
+		categoryID, err := strconv.Atoi(h.Filters.Category)
 		if err != nil {
 			return landingPageCars, filterOn, err
 		}
-		Filters.CategoryName = h.CategoryIDMap[categoryID]
+		h.Filters.CategoryName = h.CategoryIDMap[categoryID]
 		filterOn = true
 	}
 	if r.URL.Query().Get("year") != "" {
-		Filters.Year = r.URL.Query().Get("year")
+		h.Filters.Year = r.URL.Query().Get("year")
 		filterOn = true
 	}
 
-	if Filters.Manufacturer != "" || Filters.Category != "" || Filters.Year != "" {
-		landingPageCars = getFilteredCars(landingPageCars)
+	if h.Filters.Manufacturer != "" || h.Filters.Category != "" || h.Filters.Year != "" {
+		landingPageCars = getFilteredCars(landingPageCars, h)
 		filterOn = true
 	}
 

@@ -35,16 +35,15 @@ func createPages(landingPageCars []Car, w http.ResponseWriter, r* http.Request) 
 	//break cars up into pages
 	var numPages int
 	var pageNumbers []int
-	pageNum := 1
 	var index int
-	resultsPerPage := 10
-	overflow := 0
 	var err error
 	var pagesShown []int 
-	//var notBeg bool
-	//var notEnd bool
 
 	carsOnPage := landingPageCars
+	pageNum := 1
+	pageNumbers = []int{1}
+	resultsPerPage := 10
+	overflow := 0
 
 	if len(landingPageCars) > resultsPerPage {
 	
@@ -75,15 +74,14 @@ func createPages(landingPageCars []Car, w http.ResponseWriter, r* http.Request) 
 		}
 		
 		numPagesShown := 9
-		if len(pageNumbers) < 9 {
+		if len(pageNumbers) < numPagesShown {
 			numPagesShown = len(pageNumbers)
 		}
 		//if current page is in the first 4 pages
 		if pageNum <= numPagesShown/2 {
 			for i:=1; i<=numPagesShown; i++ {
 				pagesShown = append(pagesShown, i)
-			}
-			//notEnd = true
+			}	
 		} else if pageNum >= len(pageNumbers) - numPagesShown/2{ //if current page is in the last four pages
 			for i:=len(pageNumbers)-numPagesShown; i<=len(pageNumbers); i++ {
 				if i<=0 {
@@ -91,13 +89,10 @@ func createPages(landingPageCars []Car, w http.ResponseWriter, r* http.Request) 
 				}
 				pagesShown = append(pagesShown, i)
 			}
-			//notBeg = true
 		} else {
 			for i:=pageNum-4; i<=pageNum+4; i++ {
 				pagesShown = append(pagesShown, i)
 			}
-			//notBeg = true
-			//notEnd = true
 		}
 		if pageNum == len(pageNumbers) && overflow != 0 {
 			carsOnPage = landingPageCars[index:index+overflow]
@@ -106,5 +101,5 @@ func createPages(landingPageCars []Car, w http.ResponseWriter, r* http.Request) 
 		}
 	}
 
-	return carsOnPage, pagesShown, pageNum, len(pageNumbers)//, notBeg, notEnd
+	return carsOnPage, pagesShown, pageNum, len(pageNumbers)
 }

@@ -29,24 +29,10 @@ type Category struct {
 	Name string `json:"name"`
 }
 
-type HomeData struct {
-	Cars          any
-	Manufacturers []Manufacturer
-	Categories []Category
-	Years []int
-	Pagination Pagination
-	SearchOn bool
-	SearchValue string
-	NotFound bool
-	FilterOn bool
-	Filters struct{Manufacturer string; ManufacturerName string; Category string; CategoryName string; Year string}
-}
-
 type CarDetail struct {
 	Car          Car
 	Manufacturer Manufacturer
 	Category     Category
-	Years        []int
 }
 
 type CompareData struct {
@@ -59,23 +45,20 @@ type Pagination struct {
 	PageNumbers []int
 	CurrentPage int
 	LastPage int
-	//NotBeg bool
-	//NotEnd bool
 }
 
-//var CarsData []Car
-//var Manufacturers []Manufacturer
-//var Categories []Category
-//var Years []int
-//var ManufacturerMap map[int]string
-//var CategoryMap map[int]string
+type Search struct {
+	On bool
+	Value string
+	NotFound bool
+}
 
-var Filters struct {
+type Filters struct {
 	Manufacturer     string
 	ManufacturerName string
 	Category         string
 	CategoryName     string
 	Year             string
+	On bool
+	Err error
 }
-
-var SearchValue string

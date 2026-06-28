@@ -15,13 +15,16 @@ var bufferPool = sync.Pool {
 }
 
 type HomeHandler struct {
-	//Data *APIData
-	Cars []Car
+	AllCars []Car
+	CarsOnPage []Car
 	Manufacturers []Manufacturer
 	Categories []Category
 	Years []int
 	ManufacturerIDMap map[int]string
 	CategoryIDMap map[int]string
+	Search Search
+	Filters Filters
+	Pagination Pagination
 }
 
 func (h *HomeHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
@@ -30,37 +33,19 @@ func (h *HomeHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	landingPageCars := h.Cars
-	var searchOn bool
-	var notFound bool
-	var filterOn bool
-	var errFilter error
+	landingPageCars := h.AllCars
 
-	landingPageCars, searchOn, notFound = checkSearch(landingPageCars, w, r)
+	landingPageCars, h.Search.On, h.Search.NotFound = checkSearch(landingPageCars, h, w, r)
 
-	landingPageCars, filterOn, errFilter  = checkFilter(landingPageCars, h, w, r)
-	if errFilter != nil {
-		log.Println(errFilter)
+	landingPageCars, h.Filters.On, h.Filters.Err  = checkFilter(landingPageCars, h, w, r)
+	if h.Filters.Err != nil {
+		log.Println(h.Filters.Err)
 		w.WriteHeader(http.StatusInternalServerError)
 		tpl.ExecuteTemplate(w, "error.html", nil)
 		return
 	}
 
-	carsOnPage, pageNumbers, currentPage, numberOfPages/*, notBeg, notEnd */:= createPages(landingPageCars, w, r)
-
-
-	data := HomeData{
-		Cars:          carsOnPage,
-		Manufacturers: h.Manufacturers,
-		Categories: h.Categories,
-		Years: h.Years,
-		Pagination: Pagination{PageNumbers: pageNumbers, CurrentPage: currentPage, LastPage: numberOfPages, /*NotBeg: notBeg, NotEnd: notEnd*/},
-		SearchOn: searchOn,
-		SearchValue: SearchValue,
-		NotFound: notFound,
-		FilterOn: filterOn,
-		Filters: Filters,
-	}
+	h.CarsOnPage, h.Pagination.PageNumbers, h.Pagination.CurrentPage, h.Pagination.LastPage = createPages(landingPageCars, w, r)
 
 	//get a buffer 
 	buf := bufferPool.Get().(*bytes.Buffer)
@@ -70,7 +55,7 @@ func (h *HomeHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	defer bufferPool.Put(buf)
 
 	//write to buffer instead of w
-	err := tpl.ExecuteTemplate(buf, "home.html", data)
+	err := tpl.ExecuteTemplate(buf, "home.html", h)
 
 	if err != nil {
 		log.Println(err)
@@ -84,19 +69,23 @@ func (h *HomeHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 }
 
 type CarDetailHandler struct {
-	Cars []Car
-	Manufacturers []Manufacturer
-	Categories []Category
-	Years []int
-	ManufacturerIDMap map[int]string
-	CategoryIDMap map[int]string
+	DetailedCar []CarDetail
 }
 
 func (h* CarDetailHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	
-	//var err error
 
-	cars, errCarDetails := getCarDetails(h.Cars, h.Years, w, r)
+	id := r.PathValue("id")
+	car, errCarModel := getCarModel(id)
+	carsFound := append([]Car{}, car)
+	if errCarModel != nil {
+		log.Println(errCarModel)
+		w.WriteHeader(http.StatusInternalServerError)
+		tpl.ExecuteTemplate(w, "error.html", nil)
+		return
+	}
+
+	var errCarDetails error
+	h.DetailedCar, errCarDetails = getCarDetails(carsFound, w, r)
 	if errCarDetails != nil {
 		log.Println(errCarDetails)
 		w.WriteHeader(http.StatusInternalServerError)
@@ -104,18 +93,11 @@ func (h* CarDetailHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-		data := HomeData{
-			Cars: cars,
-			Manufacturers: h.Manufacturers,
-			Categories: h.Categories,
-			Years: h.Years,
-		}
-	
 	buf := bufferPool.Get().(*bytes.Buffer)
 	buf.Reset()
 	defer bufferPool.Put(buf)
 
-	err := tpl.ExecuteTemplate(buf, "car.html", data)
+	err := tpl.ExecuteTemplate(buf, "car.html", h)
 
 	if err != nil {
 		log.Println(err)
@@ -127,12 +109,13 @@ func (h* CarDetailHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 }
 
 type CompareCarHandler struct {
-	Cars []Car
+	AllCars []Car
+	DetailedCars []CarDetail
 	Years []int
 }
 
 func (h *CompareCarHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	carDetails, _ := getCarDetails(h.Cars, h.Years, w, r)
+	carDetails, _ := getCarDetails(h.AllCars, w, r)
 
 	var selectedCars []CarDetail
 	compareError := ""

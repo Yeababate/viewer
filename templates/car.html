@@ -21,7 +21,7 @@
     <main>
         <a href="/" class="back-button">← Back</a>
         
-	{{range .Cars }}
+	{{range .DetailedCar }}
         <div class="car-detail">
             <img src="/static/img/{{ .Car.Image }}" alt="{{ .Car.Name }}">
             <h2>{{ .Car.Name }}</h2>
