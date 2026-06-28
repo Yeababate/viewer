@@ -39,13 +39,12 @@ The viewer expects these API endpoints:
 
 ```bash
 go run .
+
 ```
 
 3. Open your browser at:
-
-```text
 http://localhost:8080
-```
+
 
 ## Project Structure
 
