@@ -35,9 +35,10 @@ func (h *HomeHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	landingPageCars := h.AllCars
 
-	landingPageCars, h.Search.On, h.Search.NotFound = checkSearch(landingPageCars, h, w, r)
+	landingPageCars = checkSearch(landingPageCars, h, w, r)
 
-	landingPageCars, h.Filters.On, h.Filters.Err  = checkFilter(landingPageCars, h, w, r)
+	h.Filters.Err = nil
+	landingPageCars, h.Filters.Err  = checkFilter(landingPageCars, h, w, r)
 	if h.Filters.Err != nil {
 		log.Println(h.Filters.Err)
 		w.WriteHeader(http.StatusInternalServerError)
@@ -69,14 +70,14 @@ func (h *HomeHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 }
 
 type CarDetailHandler struct {
-	DetailedCar []CarDetail
+	DetailedCar CarDetail
 }
 
 func (h* CarDetailHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	id := r.PathValue("id")
 	car, errCarModel := getCarModel(id)
-	carsFound := append([]Car{}, car)
+	//carsFound := append([]Car{}, car)
 	if errCarModel != nil {
 		log.Println(errCarModel)
 		w.WriteHeader(http.StatusInternalServerError)
@@ -85,7 +86,7 @@ func (h* CarDetailHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var errCarDetails error
-	h.DetailedCar, errCarDetails = getCarDetails(carsFound, w, r)
+	h.DetailedCar, errCarDetails = getCarDetails(car, w, r)
 	if errCarDetails != nil {
 		log.Println(errCarDetails)
 		w.WriteHeader(http.StatusInternalServerError)
@@ -109,45 +110,41 @@ func (h* CarDetailHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 }
 
 type CompareCarHandler struct {
-	AllCars []Car
-	DetailedCars []CarDetail
-	Years []int
+	SelectedCars []CarDetail
 }
 
 func (h *CompareCarHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	carDetails, _ := getCarDetails(h.AllCars, w, r)
-
 	var selectedCars []CarDetail
-	compareError := ""
 	if r.Method == "POST" {
 		r.ParseForm()
 		selectedIDs := r.Form["carIds"]
-		if len(selectedIDs) != 2 {
-			compareError = "Please select exactly 2 cars to compare."
-		} else {
+		
 			for _, idStr := range selectedIDs {
 				carModel, err := getCarModel(idStr)
 				if err != nil {
-					compareError = "Error loading selected cars, Please try again."
-					selectedCars = nil
-					break
+					continue
 				}
-				manufacturer, _ := getCarManufacturer(strconv.Itoa(carModel.ManufacturerID))
-				category, _ := getCarCategory(strconv.Itoa(carModel.CategoryID))
+				manufacturer, err:= getCarManufacturer(strconv.Itoa(carModel.ManufacturerID))
+				if err != nil{
+					w.WriteHeader(http.StatusInternalServerError)
+    				tpl.ExecuteTemplate(w, "error.html", nil)
+    				return
+				}
+				category, err := getCarCategory(strconv.Itoa(carModel.CategoryID))
+				if err != nil{
+					w.WriteHeader(http.StatusInternalServerError)
+    				tpl.ExecuteTemplate(w, "error.html", nil)
+    				return
+				}
 				selectedCars = append(selectedCars, CarDetail{
 					Car:          carModel,
 					Manufacturer: manufacturer,
 					Category:     category,
 				})
 			}
-		}
 	}
 
-	data := CompareData{
-		Cars:         carDetails,
-		SelectedCars: selectedCars,
-		CompareError: compareError,
-	}
 
-	tpl.ExecuteTemplate(w, "compare.html", data)
+	tpl.ExecuteTemplate(w, "compare.html", selectedCars)
 }
+

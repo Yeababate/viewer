@@ -48,9 +48,10 @@ func getSearchedCars(term string, cars []Car) ([]Car, bool) {
 	return carsFound, notFound
 }
 
-func checkSearch(landingPageCars []Car, h *HomeHandler, w http.ResponseWriter, r *http.Request) ([]Car, bool, bool) {
-	var searchOn bool
-	var notFound bool
+func checkSearch(landingPageCars []Car, h *HomeHandler, w http.ResponseWriter, r *http.Request) ([]Car) {
+	h.Search.On = false
+	h.Search.NotFound = false
+
 	//check if Clear Search button clicked
 	if r.FormValue("clearSearch") == "clear" {
 		h.Search.Value = ""
@@ -59,18 +60,19 @@ func checkSearch(landingPageCars []Car, h *HomeHandler, w http.ResponseWriter, r
 	//look for search results
 	if r.FormValue("q") != "" {
 		h.Search.Value = strings.ToLower(r.FormValue("q"))
-		searchOn = true
+		h.Search.On = true
 
 	}
 	if h.Search.Value != "" {
+			var notFound bool
         	landingPageCars, notFound = getSearchedCars(h.Search.Value, landingPageCars)
         	if notFound {
-                	 notFound = true
+                	 h.Search.NotFound = true
         	}
-		searchOn = true
+		h.Search.On = true
 	}
 
-	return landingPageCars, searchOn, notFound
+	return landingPageCars
 }
 
 func getFilteredCars(cars []Car, h *HomeHandler) []Car {
@@ -92,8 +94,8 @@ func getFilteredCars(cars []Car, h *HomeHandler) []Car {
 	return filtered
 }
 
-func checkFilter(landingPageCars []Car, h *HomeHandler, w http.ResponseWriter, r* http.Request) ([]Car, bool, error) {
-	var filterOn bool
+func checkFilter(landingPageCars []Car, h *HomeHandler, w http.ResponseWriter, r* http.Request) ([]Car, error) {
+	h.Filters.On = false
 
 	//check if Clear Filter button clicked
 	if r.FormValue("clearFilter") == "clear" {
@@ -107,29 +109,29 @@ func checkFilter(landingPageCars []Car, h *HomeHandler, w http.ResponseWriter, r
 		h.Filters.Manufacturer = r.URL.Query().Get("manufacturer")
 		manufacturerID, err := strconv.Atoi(h.Filters.Manufacturer)
 		if err != nil {
-			return landingPageCars, filterOn, err
+			return landingPageCars, err
 		}
 		h.Filters.ManufacturerName = h.ManufacturerIDMap[manufacturerID]
-		filterOn = true
+		h.Filters.On = true
 	}
 	if r.URL.Query().Get("category") != "" {
 		h.Filters.Category = r.URL.Query().Get("category")
 		categoryID, err := strconv.Atoi(h.Filters.Category)
 		if err != nil {
-			return landingPageCars, filterOn, err
+			return landingPageCars, err
 		}
 		h.Filters.CategoryName = h.CategoryIDMap[categoryID]
-		filterOn = true
+		h.Filters.On = true
 	}
 	if r.URL.Query().Get("year") != "" {
 		h.Filters.Year = r.URL.Query().Get("year")
-		filterOn = true
+		h.Filters.On = true
 	}
 
 	if h.Filters.Manufacturer != "" || h.Filters.Category != "" || h.Filters.Year != "" {
 		landingPageCars = getFilteredCars(landingPageCars, h)
-		filterOn = true
+		h.Filters.On = true
 	}
 
-	return landingPageCars, filterOn, nil
+	return landingPageCars, nil
 }

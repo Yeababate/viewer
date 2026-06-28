@@ -72,19 +72,13 @@ func main(){
 		CategoryIDMap: categoryMap,
 	}
 
-	//data for compare cars handler
-	compare := CompareCarHandler{
-		AllCars: carsData,
-		Years: years,
-	}
-
 	fs := http.FileServer(http.Dir("static"))
 	http.Handle("/static/", http.StripPrefix("/static/", fs))
 
 	tpl, _ = tpl.ParseGlob("templates/*html")
 	
 	http.Handle("/", &home)
-	http.Handle("/compareCar", &compare)
+	http.Handle("/compareCar", &CompareCarHandler{})
 	http.Handle("GET /car/{id}", &CarDetailHandler{})
 
 	server := &http.Server{
