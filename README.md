@@ -21,42 +21,73 @@ A Go web application for browsing a car catalog, viewing detailed car pages, and
 ## Prerequisites
 
 - Go 1.25 or newer
+- Node.js and npm (for running the backend API)
 - A backend API running on http://localhost:3000
 
 The viewer expects these API endpoints:
 
-- GET /api/models
-- GET /api/models/{id}
-- GET /api/manufacturers/
-- GET /api/manufacturers/{id}
-- GET /api/categories
-- GET /api/categories/{id}
+- `GET /api/models`
+- `GET /api/models/{id}`
+- `GET /api/manufacturers/`
+- `GET /api/manufacturers/{id}`
+- `GET /api/categories`
+- `GET /api/categories/{id}`
+
+## Project Layout
+
+
+```text
+project-root/
+├── api/    
+└── viewer/
+```
+
+## Running the API
+
+The Cars API is a Node.js/Express app. From the `api` folder:
+
+1. Install required packages:
+
+- Install [NodeJS](http://nodejs.org)
+- Install [NPM](https://www.npmjs.com/package/npm) package manager
+
+   ```bash
+   make build
+   ```
+
+2. Start the server:
+
+   ```bash
+   make run
+   ```
+
 
 ## Running the Project
 
-1. Start the backend API on port 3000.
-2. From the project root, run:
+1. Make sure the backend API is running (see [Running the API](#running-the-api) above).
+2. From the `./viewer` project root, run:
 
-```bash
-go run .
+   ```bash
+   go run .
+   ```
 
-```
-
-3. Open your browser at:
-http://localhost:8080
-
+3. Open your browser at: http://localhost:8080
 
 ## Project Structure
 
-- main.go - starts the HTTP server and initializes the app
-- handlers.go - route handlers for home, details, and compare pages
-- getData.go - functions for fetching car data from the API
-- filterAndSearch.go - search and filtering logic
-- pagination.go - pagination logic
-- templates/ - HTML templates
-- static/ - CSS and images
-- typesAndVariables.go - shared structs and variables
+| File | Purpose |
+|---|---|
+| `main.go` | Starts the HTTP server and initializes the app |
+| `handlers.go` | Route handlers for home, details, and compare pages |
+| `getData.go` | Functions for fetching car data from the API |
+| `filterAndSearch.go` | Search and filtering logic |
+| `pagination.go` | Pagination logic |
+| `typesAndVariables.go` | Shared structs and variables |
+| `templates/` | HTML templates |
+| `static/` | CSS and images |
+
+
 
 ## Notes
 
-This project is a frontend viewer and depends on an external API for its data. If the API is unavailable, the app will not be able to load the car catalog.
+- This project is a frontend viewer and depends on an external API for its data. If the API is unavailable, the app will not be able to load the car catalog.
