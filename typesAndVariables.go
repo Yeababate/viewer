@@ -59,8 +59,6 @@ type Pagination struct {
 	PageNumbers []int
 	CurrentPage int
 	LastPage int
-	//NotBeg bool
-	//NotEnd bool
 }
 
 var CarsData []Car

@@ -55,6 +55,7 @@ func main(){
 	//make map of category names matched with ID
 	CategoryMap = getCategoryMap(Categories)
 
+	
 	fs := http.FileServer(http.Dir("static"))
 	http.Handle("/static/", http.StripPrefix("/static/", fs))
 
