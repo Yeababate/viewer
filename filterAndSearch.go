@@ -6,7 +6,7 @@ import (
 	"strings"
 	)
 
-func getSearchedCars(term string) ([]Car, bool) {
+func getSearchedCars(term string, cars []Car) ([]Car, bool) {
 	var notFound bool
 	//strings.Fields() splits strings around whitespace chars (incl mult spaces, tabs, newlines)
 	searchTerms := strings.Fields(strings.ToLower(term))
@@ -16,7 +16,7 @@ func getSearchedCars(term string) ([]Car, bool) {
 	var name string
 	var year string
 	if len(searchTerms) == 1 {
-		for _, car := range CarsData {
+		for _, car := range cars {
 			name = strings.ToLower(car.Name)
 			year = strconv.Itoa(car.Year)
 			if strings.Contains(name, term) || strings.Contains(year, term) {
@@ -24,7 +24,7 @@ func getSearchedCars(term string) ([]Car, bool) {
 			}
 		}
 	} else {
-		for _, car := range CarsData {
+		for _, car := range cars {
 			name = strings.ToLower(car.Name)
 			year = strconv.Itoa(car.Year)
 			matchCount := 0
@@ -48,42 +48,44 @@ func getSearchedCars(term string) ([]Car, bool) {
 	return carsFound, notFound
 }
 
-func checkSearch(landingPageCars []Car, w http.ResponseWriter, r *http.Request) ([]Car, bool, bool) {
-	var searchOn bool
-	var notFound bool
+func checkSearch(landingPageCars []Car, h *HomeHandler, w http.ResponseWriter, r *http.Request) ([]Car) {
+	h.Search.On = false
+	h.Search.NotFound = false
+
 	//check if Clear Search button clicked
 	if r.FormValue("clearSearch") == "clear" {
-		SearchValue = ""
+		h.Search.Value = ""
 	}
 
 	//look for search results
 	if r.FormValue("q") != "" {
-		SearchValue = strings.ToLower(r.FormValue("q"))
-		searchOn = true
+		h.Search.Value = strings.ToLower(r.FormValue("q"))
+		h.Search.On = true
 
 	}
-	if SearchValue != "" {
-        	landingPageCars, notFound = getSearchedCars(SearchValue)
+	if h.Search.Value != "" {
+			var notFound bool
+        	landingPageCars, notFound = getSearchedCars(h.Search.Value, landingPageCars)
         	if notFound {
-                	 notFound = true
+                	 h.Search.NotFound = true
         	}
-		searchOn = true
+		h.Search.On = true
 	}
 
-	return landingPageCars, searchOn, notFound
+	return landingPageCars
 }
 
-func getFilteredCars(cars []Car) []Car {
+func getFilteredCars(cars []Car, h *HomeHandler) []Car {
 
 	var filtered []Car
 	for _, car := range cars {
-		if Filters.Manufacturer != "" && strconv.Itoa(car.ManufacturerID) != Filters.Manufacturer {
+		if h.Filters.Manufacturer != "" && strconv.Itoa(car.ManufacturerID) != h.Filters.Manufacturer {
 			continue
 		}
-		if Filters.Category != "" && strconv.Itoa(car.CategoryID) != Filters.Category {
+		if h.Filters.Category != "" && strconv.Itoa(car.CategoryID) != h.Filters.Category {
 			continue
 		}
-		if Filters.Year != "" && strconv.Itoa(car.Year) != Filters.Year {
+		if h.Filters.Year != "" && strconv.Itoa(car.Year) != h.Filters.Year {
 			continue
 		}
 		filtered = append(filtered, car)
@@ -92,44 +94,44 @@ func getFilteredCars(cars []Car) []Car {
 	return filtered
 }
 
-func checkFilter(landingPageCars []Car, w http.ResponseWriter, r* http.Request) ([]Car, bool, error) {
-	var filterOn bool
+func checkFilter(landingPageCars []Car, h *HomeHandler, w http.ResponseWriter, r* http.Request) ([]Car, error) {
+	h.Filters.On = false
 
 	//check if Clear Filter button clicked
 	if r.FormValue("clearFilter") == "clear" {
-		Filters.Manufacturer = ""
-		Filters.Category = ""
-		Filters.Year = ""
+		h.Filters.Manufacturer = ""
+		h.Filters.Category = ""
+		h.Filters.Year = ""
 	}
 
 	//look for filter results
 	if  r.URL.Query().Get("manufacturer")!= "" {
-		Filters.Manufacturer = r.URL.Query().Get("manufacturer")
-		manufacturerID, err := strconv.Atoi(Filters.Manufacturer)
+		h.Filters.Manufacturer = r.URL.Query().Get("manufacturer")
+		manufacturerID, err := strconv.Atoi(h.Filters.Manufacturer)
 		if err != nil {
-			return landingPageCars, filterOn, err
+			return landingPageCars, err
 		}
-		Filters.ManufacturerName = ManufacturerMap[manufacturerID]
-		filterOn = true
+		h.Filters.ManufacturerName = h.ManufacturerIDMap[manufacturerID]
+		h.Filters.On = true
 	}
 	if r.URL.Query().Get("category") != "" {
-		Filters.Category = r.URL.Query().Get("category")
-		categoryID, err := strconv.Atoi(Filters.Category)
+		h.Filters.Category = r.URL.Query().Get("category")
+		categoryID, err := strconv.Atoi(h.Filters.Category)
 		if err != nil {
-			return landingPageCars, filterOn, err
+			return landingPageCars, err
 		}
-		Filters.CategoryName = CategoryMap[categoryID]
-		filterOn = true
+		h.Filters.CategoryName = h.CategoryIDMap[categoryID]
+		h.Filters.On = true
 	}
 	if r.URL.Query().Get("year") != "" {
-		Filters.Year = r.URL.Query().Get("year")
-		filterOn = true
+		h.Filters.Year = r.URL.Query().Get("year")
+		h.Filters.On = true
 	}
 
-	if Filters.Manufacturer != "" || Filters.Category != "" || Filters.Year != "" {
-		landingPageCars = getFilteredCars(landingPageCars)
-		filterOn = true
+	if h.Filters.Manufacturer != "" || h.Filters.Category != "" || h.Filters.Year != "" {
+		landingPageCars = getFilteredCars(landingPageCars, h)
+		h.Filters.On = true
 	}
 
-	return landingPageCars, filterOn, nil
+	return landingPageCars, nil
 }

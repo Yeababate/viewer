@@ -28,14 +28,14 @@
                 </section>
                 <search class="Search"> 
 		        <form action="/">
-					{{ if .SearchOn }}
-				<input type="search" required id="carSearch" name="q" placeholder="{{ .SearchValue }}" aria-label="Search for a car" size="30" />
+					{{ if .Search.On }}
+				<input type="search" required id="carSearch" name="q" placeholder="{{ .Search.Value }}" aria-label="Search for a car" size="30" />
 				{{ else }}
 			        <input type="search" required id="carSearch" name="q" placeholder="Search for a car" aria-label="Search for a car" size="30" />
 				{{ end }}
 				<button>Search</button>
 		        </form>
-			{{ if .SearchOn }}
+			{{ if .Search.On }}
 			<form action="/" method="GET">
 				<button type="submit" class="clear" name="clearSearch" value="clear">Clear</button>
 			</form>
@@ -43,13 +43,13 @@
 
                 </search>
                 <div class="searchMessage">
-                        {{ if .NotFound }}
+                        {{ if .Search.NotFound }}
                         <span>No results for this search term. Please try again.</span>
                         {{ end }}
                 </div>
                 <section class="filter">
                         <form action="/" method="GET">
-				{{ if .FilterOn }}
+				{{ if .Filters.On }}
 				<select name="manufacturer">
 					<option value="">{{ .Filters.ManufacturerName }}</option>
                                         {{ range .Manufacturers }}
@@ -90,7 +90,7 @@
 				{{ end }}
                                 <button type="submit">Filter</button>
                         </form>
-                        {{ if .FilterOn }}
+                        {{ if .Filters.On }}
 			<form action="/" method="GET">
 				<button type="submit" class="clear" name="clearFilter" value="clear">Clear Filter</button>
 			</form>
@@ -107,7 +107,7 @@
                     <section class="car-display">
                         <div class="border">
                             <div class="car-container">
-                        {{ range .Cars }}
+                        {{ range .CarsOnPage }}
                         <div class="car-card">
                             <a href="/car/{{ .Id }}" class="car-link">
                                 <div class="car-border">
@@ -132,9 +132,25 @@
 
 		<div class="page-num-container">
 			<div class="page-buttons">
-		     		{{ range .PageNumbers }}
+                                {{$currentpage := .Pagination.CurrentPage}}
+                                {{$lastpage := .Pagination.LastPage}}
+                                {{$previouspage := .Pagination.GetPreviousPage $currentpage}}
+                                {{$nextpage := .Pagination.GetNextPage $currentpage}}
+                                {{ if .Pagination.NotBeginning $currentpage }}
+                                <a href="/?page=1"><<</a>
+                                <a href="/?page={{$previouspage}}"><-</a>
+                                {{ end }}
+		     		{{ range .Pagination.PageNumbers }}
+                                {{ if eq . $currentpage }}
+                                <div class="current-page"> {{ . }} </div>
+                                {{ else }}
 		     		<a href="/?page={{ . }}">{{ . }}</a>
 		    		 {{ end }}
+                                 {{ end }}
+                                 {{if .Pagination.NotEnd $currentpage $lastpage}}
+                                <a href="/?page={{$nextpage}}">-></a>
+                                <a href="/?page={{$lastpage}}">>></a>
+                                {{ end }}
 			</div>
 		</div>
 		</div>

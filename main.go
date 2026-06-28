@@ -20,12 +20,16 @@ func main(){
 	log.SetOutput(os.Stdout)
 	
 	var err error
+	var carsData []Car
+	var manufacturers []Manufacturer
+	var categories []Category
+
 	//use WaitGroup to wait for all goroutines fetching API data to complete before starting server
 	var wg sync.WaitGroup
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
-		CarsData, err = getCars()
+		carsData, err = getCars()
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -33,7 +37,7 @@ func main(){
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
-		Manufacturers, err = getManufacturers()
+		manufacturers, err = getManufacturers()
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -41,7 +45,7 @@ func main(){
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
-		Categories, err = getCategories()
+		categories, err = getCategories()
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -50,20 +54,32 @@ func main(){
 	wg.Wait()
 
 	//make map of manufacturer names matched with ID
-	ManufacturerMap = getManufacturerMap(Manufacturers)
+	manufacturerMap := getManufacturerMap(manufacturers)
 
 	//make map of category names matched with ID
-	CategoryMap = getCategoryMap(Categories)
+	categoryMap := getCategoryMap(categories)
+
+	//get slice of years for filter
+	years := getYears(carsData)
+
+	//data for home handler
+	home := HomeHandler{
+		AllCars: carsData,
+		Manufacturers: manufacturers,
+		Categories: categories,
+		Years: years,
+		ManufacturerIDMap: manufacturerMap,
+		CategoryIDMap: categoryMap,
+	}
 
 	fs := http.FileServer(http.Dir("static"))
 	http.Handle("/static/", http.StripPrefix("/static/", fs))
 
 	tpl, _ = tpl.ParseGlob("templates/*html")
-
-	Years = getYears(CarsData)
-	http.HandleFunc("/", homeHandler)
-	http.HandleFunc("/compareCar", compareCarHandler)
-	http.HandleFunc("GET /car/{id}", carDetailHandler)
+	
+	http.Handle("/", &home)
+	http.Handle("/compareCar", &CompareCarHandler{})
+	http.Handle("GET /car/{id}", &CarDetailHandler{})
 
 	server := &http.Server{
 		Addr:    ":8080",
@@ -77,7 +93,7 @@ func main(){
 		}
 	}()
 
-	//signal.NotifyContext returns a copy of the parent context marked done when one of the listed signals arrives
+	//signal.NotifyContext returns a copy of the parent context marked 'done' when one of the listed signals arrives
 	//signal.NotifyContext returns (context.Context, context.CancelFunc)
 	shutdown, stop := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
 	defer stop()

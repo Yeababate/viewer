@@ -21,38 +21,28 @@
     <main>
         <a href="/" class="back-button">← Back</a>
         
-	{{range .Cars }}
-        <div class="car-detail">
-            <img src="/static/img/{{ .Car.Image }}" alt="{{ .Car.Name }}">
-            <h2>{{ .Car.Name }}</h2>
-            <p>Year: {{ .Car.Year }}</p>
 
-            <h3>Specifications</h3>
-            <p>Engine: {{ .Car.Specifications.Engine }}</p>
-            <p>Horsepower: {{ .Car.Specifications.Horsepower }}</p>
-            <p>Transmission: {{ .Car.Specifications.Transmission }}</p>
-            <p>Drivetrain: {{ .Car.Specifications.Drivetrain }}</p>
+    <div class="car-detail">
+        <img src="/static/img/{{ .DetailedCar.Car.Image }}" alt="{{ .DetailedCar.Car.Name }}">
+        <h2>{{ .DetailedCar.Car.Name }}</h2>
+        <p>Year: {{ .DetailedCar.Car.Year }}</p>
 
-            <h3>Manufacturer</h3>
-            <p>Name: {{ .Manufacturer.Name }}</p>
-            <p>Country: {{ .Manufacturer.Country }}</p>
-            <p>Founded: {{ .Manufacturer.FoundingYear }}</p>
+        <h3>Specifications</h3>
+        <p>Engine: {{ .DetailedCar.Car.Specifications.Engine }}</p>
+        <p>Horsepower: {{ .DetailedCar.Car.Specifications.Horsepower }}</p>
+        <p>Transmission: {{ .DetailedCar.Car.Specifications.Transmission }}</p>
+        <p>Drivetrain: {{ .DetailedCar.Car.Specifications.Drivetrain }}</p>
 
-            <h3>Category</h3>
-            <p>{{ .Category.Name }}</p>
-        </div>
-	{{ end }}
+        <h3>Manufacturer</h3>
+        <p>Name: {{ .DetailedCar.Manufacturer.Name }}</p>
+        <p>Country: {{ .DetailedCar.Manufacturer.Country }}</p>
+        <p>Founded: {{ .DetailedCar.Manufacturer.FoundingYear }}</p>
+
+        <h3>Category</h3>
+        <p>{{ .DetailedCar.Category.Name }}</p>
+    </div>
 
 
-	<div class="page-num-container">
-        	<div class="page-buttons">
-                {{ range .PageNumbers }}
-	                <a href="/?page={{ . }}">{{ . }}</a>
-                {{ end }}
-                </div>
-       </div>
-                            
-	
 
 </main>
 </body>

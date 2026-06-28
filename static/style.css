@@ -376,10 +376,15 @@ body {
 
 .page-buttons {
 	font-size: 1.2em;
+    display: flex;
+    justify-content: center;
+    text-align: center;
+    gap: 8px;
 }
 
 .page-buttons a:link{
 	color: var(--color-text-primary);
+    text-decoration: none; 
 }
 
 .page-buttons a:visited{
@@ -388,6 +393,12 @@ body {
 
 .page-buttons a:hover{
 	color: var(--color-accent);
+}
+
+.current-page{
+    color: var(--color-text-secondary);
+    font-weight: bold;
+    text-decoration: underline;
 }
 
 .errorMessage span{

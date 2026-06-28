@@ -162,30 +162,23 @@ func getCategoryMap(categories []Category) map[int]string {
 	return categoryMap
 }
 
-func getCarDetails(carsOnPage []Car, w http.ResponseWriter, r* http.Request) ([]CarDetail, error) {
-	cars := []CarDetail{}
+func getCarDetails(car Car, w http.ResponseWriter, r* http.Request) (CarDetail, error) {
 	var detail CarDetail
 
-	//get all details for each car in carsFound
-	for i := range carsOnPage {
-		manufacturerDetails, err := getCarManufacturer(strconv.Itoa(carsOnPage[i].ManufacturerID))
-		if err != nil {
-			return cars, err
-		}
-		categoryDetails, err := getCarCategory(strconv.Itoa(carsOnPage[i].CategoryID))
-		if err != nil {
-			return cars, err
-		}
-
-		detail = CarDetail{
-			Car:          carsOnPage[i],
-			Manufacturer: manufacturerDetails,
-			Category:     categoryDetails,
-			Years:        Years,
-		}
-
-		cars = append(cars, detail)
+	manufacturerDetails, err := getCarManufacturer(strconv.Itoa(car.ManufacturerID))
+	if err != nil {
+		return detail, err
+	}
+	categoryDetails, err := getCarCategory(strconv.Itoa(car.CategoryID))
+	if err != nil {
+		return detail, err
 	}
 
-	return cars, nil
+	detail = CarDetail{
+		Car:          car,
+		Manufacturer: manufacturerDetails,
+		Category:     categoryDetails,
+	}
+
+	return detail, nil
 }
