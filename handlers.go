@@ -46,7 +46,7 @@ func (h *HomeHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	h.CarsOnPage, h.Pagination.PageNumbers, h.Pagination.CurrentPage, h.Pagination.LastPage = createPages(landingPageCars, w, r)
+	createPages(landingPageCars, h, w, r)
 
 	//get a buffer 
 	buf := bufferPool.Get().(*bytes.Buffer)

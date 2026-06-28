@@ -3,6 +3,7 @@ package main
 import (
 	"net/http"
 	"strconv"
+	"fmt"
 )
 
 func (p Pagination) GetPreviousPage(currentPage int) int {
@@ -31,7 +32,7 @@ func (p Pagination) NotEnd(currentPage, lastPage int) bool {
 	return notEnd
 }
 
-func createPages(landingPageCars []Car, w http.ResponseWriter, r* http.Request) ([]Car, []int, int, int,/* bool, bool*/) {
+func createPages(landingPageCars []Car, h *HomeHandler, w http.ResponseWriter, r* http.Request) {
 	//break cars up into pages
 	var numPages int
 	var pageNumbers []int
@@ -53,7 +54,7 @@ func createPages(landingPageCars []Car, w http.ResponseWriter, r* http.Request) 
 			numPages = len(landingPageCars)/resultsPerPage + 1
 			overflow = len(landingPageCars)%resultsPerPage
 		}
-
+		pageNumbers = []int{}
 		for num := range numPages {
 			//start pageNumbers at 1 instead of 0
 			pageNumbers = append(pageNumbers, num+1)
@@ -100,6 +101,9 @@ func createPages(landingPageCars []Car, w http.ResponseWriter, r* http.Request) 
 			carsOnPage = landingPageCars[index:index+resultsPerPage]
 		}
 	}
-
-	return carsOnPage, pagesShown, pageNum, len(pageNumbers)
+	fmt.Println(pageNumbers)
+	h.CarsOnPage = carsOnPage
+	h.Pagination.PageNumbers = pagesShown
+	h.Pagination.CurrentPage = pageNum
+	h.Pagination.LastPage = len(pageNumbers)
 }
