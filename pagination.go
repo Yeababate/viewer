@@ -3,7 +3,6 @@ package main
 import (
 	"net/http"
 	"strconv"
-	"fmt"
 )
 
 func (p Pagination) GetPreviousPage(currentPage int) int {
@@ -101,7 +100,6 @@ func createPages(landingPageCars []Car, h *HomeHandler, w http.ResponseWriter, r
 			carsOnPage = landingPageCars[index:index+resultsPerPage]
 		}
 	}
-	fmt.Println(pageNumbers)
 	h.CarsOnPage = carsOnPage
 	h.Pagination.PageNumbers = pagesShown
 	h.Pagination.CurrentPage = pageNum
