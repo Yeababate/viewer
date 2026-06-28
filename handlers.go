@@ -6,6 +6,7 @@ import (
 	"sync"
 	"bytes"
 	"log"
+	"fmt"
 )
 
 
@@ -18,7 +19,8 @@ var bufferPool = sync.Pool {
 
 func homeHandler(w http.ResponseWriter, r *http.Request) {
 	if r.URL.Path != "/" {
-		http.NotFound(w, r)
+		w.WriteHeader(http.StatusNotFound)
+		tpl.ExecuteTemplate(w, "error404.html", nil)
 		return
 	}
 
@@ -96,14 +98,15 @@ func carDetailHandler(w http.ResponseWriter, r *http.Request) {
 
 	if !searchOn && !filterOn {
 		id := r.PathValue("id")
+		fmt.Println(id)
 		car, errCarModel := getCarModel(id)
-		carsFound = append([]Car{}, car)
+		
 		if errCarModel != nil {
-			log.Println(errCarModel)
-			w.WriteHeader(http.StatusInternalServerError)
-			tpl.ExecuteTemplate(w, "error.html", nil)
-			return
+				w.WriteHeader(http.StatusNotFound)
+				tpl.ExecuteTemplate(w, "error404.html", nil)
+				return
 		}
+		carsFound = append([]Car{}, car)
 	}
 
 	carsOnPage, pageNumbers := createPages(carsFound, w, r)
@@ -143,17 +146,14 @@ func carDetailHandler(w http.ResponseWriter, r *http.Request) {
 		buf.WriteTo(w)
 	}
 }
+
 func compareCarHandler(w http.ResponseWriter, r *http.Request) {
-	carDetails, _ := getCarDetails(CarsData, w, r)
 
 	var selectedCars []CarDetail
 	compareError := ""
 	if r.Method == "POST" {
 		r.ParseForm()
 		selectedIDs := r.Form["carIds"]
-		if len(selectedIDs) != 2 {
-			compareError = "Please select exactly 2 cars to compare."
-		} else {
 			for _, idStr := range selectedIDs {
 				carModel, err := getCarModel(idStr)
 				if err != nil {
@@ -169,11 +169,9 @@ func compareCarHandler(w http.ResponseWriter, r *http.Request) {
 					Category:     category,
 				})
 			}
-		}
 	}
 
 	data := CompareData{
-		Cars:         carDetails,
 		SelectedCars: selectedCars,
 		CompareError: compareError,
 	}

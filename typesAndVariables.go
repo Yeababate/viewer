@@ -50,7 +50,6 @@ type CarDetail struct {
 }
 
 type CompareData struct {
-	Cars         []CarDetail
 	SelectedCars []CarDetail
 	CompareError string
 }

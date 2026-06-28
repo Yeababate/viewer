@@ -18,6 +18,9 @@ body {
     color: var(--color-text-primary);
 }
 .top-bar {
+    position: sticky;
+    top: 0;
+    z-index: 1000;
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -340,7 +343,7 @@ body {
 }
 
 .compare-submit {
-    padding:10px 10px;
+    padding:10px;
     font-size: 1em;
     background-color: var(--color-accent);
     color: var(--color-bg-secondary);
