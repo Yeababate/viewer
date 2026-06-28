@@ -38,7 +38,7 @@ func (h *HomeHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	landingPageCars, searchOn, notFound = checkSearch(landingPageCars, w, r)
 
-	landingPageCars, filterOn, errFilter  = checkFilter(landingPageCars, h.ManufacturerIDMap, h.CategoryIDMap, w, r)
+	landingPageCars, filterOn, errFilter  = checkFilter(landingPageCars, h, w, r)
 	if errFilter != nil {
 		log.Println(errFilter)
 		w.WriteHeader(http.StatusInternalServerError)
@@ -93,40 +93,10 @@ type CarDetailHandler struct {
 }
 
 func (h* CarDetailHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	//var carsFound []Car
-	var searchOn bool
-	var notFound bool
-	var filterOn bool
-	var errFilter error
+	
 	//var err error
 
-	carsFound := h.Cars
-
-	carsFound, searchOn, notFound = checkSearch(carsFound, w, r)
-
-	carsFound, filterOn, errFilter = checkFilter(carsFound, h.ManufacturerIDMap, h.CategoryIDMap, w, r)
-	if errFilter != nil {
-		log.Println(errFilter)
-		w.WriteHeader(http.StatusInternalServerError)
-		tpl.ExecuteTemplate(w, "error.html", nil)
-		return
-	}
-
-	if !searchOn && !filterOn {
-		id := r.PathValue("id")
-		car, errCarModel := getCarModel(id)
-		carsFound = append([]Car{}, car)
-		if errCarModel != nil {
-			log.Println(errCarModel)
-			w.WriteHeader(http.StatusInternalServerError)
-			tpl.ExecuteTemplate(w, "error.html", nil)
-			return
-		}
-	}
-
-	//carsOnPage, pageNumbers := createPages(carsFound, w, r)
-
-	cars, errCarDetails := getCarDetails(carsFound, h.Years, w, r)
+	cars, errCarDetails := getCarDetails(h.Cars, h.Years, w, r)
 	if errCarDetails != nil {
 		log.Println(errCarDetails)
 		w.WriteHeader(http.StatusInternalServerError)
@@ -139,11 +109,6 @@ func (h* CarDetailHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			Manufacturers: h.Manufacturers,
 			Categories: h.Categories,
 			Years: h.Years,
-			SearchOn: searchOn,
-			SearchValue: SearchValue,
-			NotFound: notFound,
-			FilterOn: filterOn,
-			Filters: Filters,
 		}
 	
 	buf := bufferPool.Get().(*bytes.Buffer)

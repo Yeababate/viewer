@@ -67,6 +67,7 @@ func main(){
 		Years: years,
 		ManufacturerIDMap: manufacturerMap,
 		CategoryIDMap: categoryMap,
+		//SearchValue string
 	}
 
 	detail := CarDetailHandler{

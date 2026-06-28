@@ -92,7 +92,7 @@ func getFilteredCars(cars []Car) []Car {
 	return filtered
 }
 
-func checkFilter(landingPageCars []Car, ManufacturerMap map[int]string, CategoryMap map[int]string, w http.ResponseWriter, r* http.Request) ([]Car, bool, error) {
+func checkFilter(landingPageCars []Car, h *HomeHandler, w http.ResponseWriter, r* http.Request) ([]Car, bool, error) {
 	var filterOn bool
 
 	//check if Clear Filter button clicked
@@ -109,7 +109,7 @@ func checkFilter(landingPageCars []Car, ManufacturerMap map[int]string, Category
 		if err != nil {
 			return landingPageCars, filterOn, err
 		}
-		Filters.ManufacturerName = ManufacturerMap[manufacturerID]
+		Filters.ManufacturerName = h.ManufacturerIDMap[manufacturerID]
 		filterOn = true
 	}
 	if r.URL.Query().Get("category") != "" {
@@ -118,7 +118,7 @@ func checkFilter(landingPageCars []Car, ManufacturerMap map[int]string, Category
 		if err != nil {
 			return landingPageCars, filterOn, err
 		}
-		Filters.CategoryName = CategoryMap[categoryID]
+		Filters.CategoryName = h.CategoryIDMap[categoryID]
 		filterOn = true
 	}
 	if r.URL.Query().Get("year") != "" {
