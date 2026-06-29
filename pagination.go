@@ -42,7 +42,7 @@ func createPages(landingPageCars []Car, h *HomeHandler, w http.ResponseWriter, r
 	carsOnPage := landingPageCars
 	pageNum := 1
 	pageNumbers = []int{1}
-	resultsPerPage := 10
+	resultsPerPage := 5
 	overflow := 0
 
 	if len(landingPageCars) > resultsPerPage {
