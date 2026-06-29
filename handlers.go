@@ -39,7 +39,7 @@ func (h *HomeHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	landingPageCars = checkSearch(landingPageCars, h, w, r)
 
 	h.Filters.Err = nil
-	landingPageCars, h.Filters.Err  = checkFilter(landingPageCars, h, w, r)
+	landingPageCars, h.Filters.Err  = checkFilter(landingPageCars, h, r)
 	if h.Filters.Err != nil {
 		log.Println(h.Filters.Err)
 		w.WriteHeader(http.StatusInternalServerError)
@@ -77,16 +77,24 @@ type CarDetailHandler struct {
 func (h* CarDetailHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	id := r.PathValue("id")
-	car, errCarModel := getCarModel(id)
-	if errCarModel != nil {
+	car, errCarModel, status := getCarModel(id)
+	if status == 500{
 		log.Println("failed to get car model")
+		w.WriteHeader(http.StatusInternalServerError)
+		tpl.ExecuteTemplate(w, "error.html", nil)
+		return
+	}
+	
+	
+	if errCarModel != nil {
+		log.Println("url not found")
 		w.WriteHeader(http.StatusNotFound)
 		tpl.ExecuteTemplate(w, "error404.html", nil)
 		return
 	}
 
 	var errCarDetails error
-	h.DetailedCar, errCarDetails = getCarDetails(car, w, r)
+	h.DetailedCar, errCarDetails = getCarDetails(car)
 	if errCarDetails != nil {
 		log.Println(errCarDetails)
 		w.WriteHeader(http.StatusInternalServerError)
@@ -119,7 +127,13 @@ func (h *CompareCarHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		r.ParseForm()
 		selectedIDs := r.Form["carIds"]
 			for _, idStr := range selectedIDs {
-				carModel, err := getCarModel(idStr)
+				carModel, err,status := getCarModel(idStr)
+				if status == 500{
+					log.Println("failed to get car model")
+					w.WriteHeader(http.StatusInternalServerError)
+					tpl.ExecuteTemplate(w, "error.html", nil)
+					return
+				}
 				if err != nil {
 					continue
 				}
@@ -142,8 +156,21 @@ func (h *CompareCarHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 				})
 			}
 	}
+buf := bufferPool.Get().(*bytes.Buffer)
+	buf.Reset()
+	defer bufferPool.Put(buf)
 
+	err := tpl.ExecuteTemplate(buf, "compare.html", selectedCars)
 
-	tpl.ExecuteTemplate(w, "compare.html", selectedCars)
+	if err != nil {
+		log.Println(err)
+		w.WriteHeader(http.StatusInternalServerError)
+		tpl.ExecuteTemplate(w, "error.html", nil)
+		
+	} else {
+		buf.WriteTo(w)
+	}
+
 }
+
 

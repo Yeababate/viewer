@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Cars Viewer - Home</title>
+        <meta name="description" content="Display cars data">
+        <link rel="stylesheet" href="static/style.css">
+</head>
+
+<body>
+    <div class="top-bar">
+    <header>
+            <h1>Find A Car</h1>
+    </header>
+
+    <nav class="heading">
+        <ol>
+            <li class="heading"><a href="/">Home</a></li>
+        </ol>
+    </nav>
+    </div>
+
+    <main>
+        <section class="headline">
+            <p class="subheading">A tagline of some kind</p>
+        </section>
+        <div class="compare">
+            <div class="left">
+                <search class="Search"> 
+		        <form action="/">
+			        <input type="search" required id="carSearch" name="q" placeholder="Search for a car" aria-label="Search for a car" size="30" />
+			        <button>Search</button>
+			        
+		        </form>
+			{{ if .SearchOn }}
+			<form action="/" method="GET">
+				<button type="submit" name="clearSearch" value="clear">Clear</button>
+			</form>
+			{{ end }}
+                </search>
+                <section class="filter">
+                        <form action="/" method="GET">
+                                <select name="manufacturer">
+                                        <option value="">All Manufacturers</option>
+                                        {{ range .Manufacturers }}
+                                        <option value="{{ .Id }}">{{ .Name }}</option>
+                                        {{ end }}
+                                </select>
+                                <select name="category">
+                                        <option value="">All Categories</option>
+                                        {{ range .Categories  }}
+                                        <option value="{{ .Id }}">{{ .Name }}</option>
+                                        {{ end }}
+                                </select>
+                                <select name="year">
+                                        <option value="">All Years</option>
+                                        {{ range .Years  }}
+                                        <option value="{{ . }}">{{ . }}</option>
+                                        {{ end }}
+                                </select>
+                                <button type="submit">Filter</button>
+                        </form>
+			{{ if .FilterOn }}
+			<form action="/" method="GET">
+				<button type="submit" name="clearFilter" value="clear">Clear Filter</button>
+			</form>
+			{{ end }}
+                         
+                </section>
+                <section class="car-display">
+                    <div class="border">
+                       
+                        <div class="car-container">
+
+			{{ range .Cars }}
+                        <a href="/car/{{ .Id }}">
+                            <div class="car-border">
+                            
+                                <div class="image-box">
+				        <img src="/static/img/{{ .Image }}" alt="{{ .Name }}">
+                                </div>
+                                <div class="text-box">
+					<span>{{ .Name }}</span>
+					<BR>
+					<span>{{ .Year }}</span>
+
+                                </div>
+                            
+                            </div>
+                        </a>       
+			{{ end }}
+                        </div>
+                    </div>
+                </section>
+
+		    <section class="page-buttons">
+		     {{ range .PageNumbers }}
+		     <a href="/?page={{ . }}">{{ . }}</a>
+		     {{ end }}
+			
+		    </section>
+            </div>
+            <div class="right">
+            <search class="Search"> 
+		        <form action="/">
+			        <input type="search" required id="carSearch" name="q" placeholder="Search for a car" aria-label="Search for a car" size="30" />
+			        <button>Search</button>
+			        
+		        </form>
+			{{ if .SearchOn }}
+			<form action="/" method="GET">
+				<button type="submit" name="clearSearch" value="clear">Clear</button>
+			</form>
+			{{ end }}
+                </search>
+                <section class="filter">
+                        <form action="/" method="GET">
+                                <select name="manufacturer">
+                                        <option value="">All Manufacturers</option>
+                                        {{ range .Manufacturers }}
+                                        <option value="{{ .Id }}">{{ .Name }}</option>
+                                        {{ end }}
+                                </select>
+                                <select name="category">
+                                        <option value="">All Categories</option>
+                                        {{ range .Categories  }}
+                                        <option value="{{ .Id }}">{{ .Name }}</option>
+                                        {{ end }}
+                                </select>
+                                <select name="year">
+                                        <option value="">All Years</option>
+                                        {{ range .Years  }}
+                                        <option value="{{ . }}">{{ . }}</option>
+                                        {{ end }}
+                                </select>
+                                <button type="submit">Filter</button>
+                        </form>
+			{{ if .FilterOn }}
+			<form action="/" method="GET">
+				<button type="submit" name="clearFilter" value="clear">Clear Filter</button>
+			</form>
+			{{ end }}
+                         
+                </section>
+                <section class="car-display">
+                    <div class="border">
+                       
+                        <div class="car-container">
+
+			{{ range .Cars }}
+                        <a href="/car/{{ .Id }}">
+                            <div class="car-border">
+                            
+                                <div class="image-box">
+				        <img src="/static/img/{{ .Image }}" alt="{{ .Name }}">
+                                </div>
+                                <div class="text-box">
+					<span>{{ .Name }}</span>
+					<BR>
+					<span>{{ .Year }}</span>
+
+                                </div>
+                            
+                            </div>
+                        </a>       
+			{{ end }}
+                        </div>
+                    </div>
+                </section>
+
+		    <section class="page-buttons">
+		     {{ range .PageNumbers }}
+		     <a href="/?page={{ . }}">{{ . }}</a>
+		     {{ end }}
+			
+		    </section>
+            </div>
+        </div>
+                
+
+
+    </main>
+
+    <footer>
+    </footer>
+
+
+</body>
+</html>
+

@@ -70,32 +70,38 @@ func getCategories() ([]Category, error) {
 	return categories, nil
 }
 
-func getCarModel(id string) (Car, error) {
+func getCarModel(id string) (Car, error, int) {
 	url := "http://localhost:3000/api/models/" + id
 	resp, errResp := http.Get(url)
+	if errResp != nil {
+		return Car{}, errResp, 500
+	}
+
 	_, err := strconv.Atoi(id)
 	if err != nil{
-		return Car{}, fmt.Errorf("failed to get car model %s: status %d", id, resp.StatusCode)
+		return Car{}, fmt.Errorf("failed to get car model %s: status %d", id, resp.StatusCode), resp.StatusCode
 	}
+	if resp.StatusCode == http.StatusInternalServerError {
+    	return Car{}, fmt.Errorf("failed to get car model %s: status %d", id, resp.StatusCode), resp.StatusCode
+	}
+
 	if resp.StatusCode == http.StatusNotFound {
-    	return Car{}, fmt.Errorf("failed to get car model %s: status %d", id, resp.StatusCode)
+    	return Car{}, fmt.Errorf("failed to get car model %s: status %d", id, resp.StatusCode), resp.StatusCode
 	}	
-	if errResp != nil {
-		return Car{}, errResp
-	}
+	
 
 	body, errRead := io.ReadAll(resp.Body)
 	if errRead != nil {
-		return Car{}, errRead
+		return Car{}, errRead,0
 	}
 
 	var model Car
 	errJson := json.Unmarshal(body, &model)
 	if errJson != nil {
-		return Car{}, errJson
+		return Car{}, errJson,0
 	}
 
-	return model, nil
+	return model, nil,0
 }
 
 func getCarManufacturer(car string) (Manufacturer, error) {
@@ -154,7 +160,7 @@ func getYears(cars []Car) []int {
 
 func getManufacturerMap(manufacturers []Manufacturer) map[int]string {
 	manufacturerMap := make(map[int]string)
-	for i, _ := range manufacturers {
+	for i:= range manufacturers {
 		manufacturerMap[manufacturers[i].Id] = manufacturers[i].Name
 	}
 
@@ -163,14 +169,14 @@ func getManufacturerMap(manufacturers []Manufacturer) map[int]string {
 
 func getCategoryMap(categories []Category) map[int]string {
 	categoryMap := make(map[int]string)
-	for i, _ := range categories {
+	for i:= range categories {
 		categoryMap[categories[i].Id] = categories[i].Name
 	}
 
 	return categoryMap
 }
 
-func getCarDetails(car Car, w http.ResponseWriter, r* http.Request) (CarDetail, error) {
+func getCarDetails(car Car) (CarDetail, error) {
 	var detail CarDetail
 
 	manufacturerDetails, err := getCarManufacturer(strconv.Itoa(car.ManufacturerID))

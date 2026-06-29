@@ -94,7 +94,7 @@ func getFilteredCars(cars []Car, h *HomeHandler) []Car {
 	return filtered
 }
 
-func checkFilter(landingPageCars []Car, h *HomeHandler, w http.ResponseWriter, r* http.Request) ([]Car, error) {
+func checkFilter(landingPageCars []Car, h *HomeHandler, r* http.Request) ([]Car, error) {
 	h.Filters.On = false
 
 	//check if Clear Filter button clicked
