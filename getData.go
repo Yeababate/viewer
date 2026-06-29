@@ -5,6 +5,7 @@ import (
 	"io"
 	"net/http"
 	"strconv"
+	"fmt"
 )
 
 func getCars() ([]Car, error) {
@@ -72,6 +73,13 @@ func getCategories() ([]Category, error) {
 func getCarModel(id string) (Car, error) {
 	url := "http://localhost:3000/api/models/" + id
 	resp, errResp := http.Get(url)
+	_, err := strconv.Atoi(id)
+	if err != nil{
+		return Car{}, fmt.Errorf("failed to get car model %s: status %d", id, resp.StatusCode)
+	}
+	if resp.StatusCode == http.StatusNotFound {
+    	return Car{}, fmt.Errorf("failed to get car model %s: status %d", id, resp.StatusCode)
+	}	
 	if errResp != nil {
 		return Car{}, errResp
 	}

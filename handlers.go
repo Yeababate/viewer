@@ -29,7 +29,8 @@ type HomeHandler struct {
 
 func (h *HomeHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	if r.URL.Path != "/" {
-		http.NotFound(w, r)
+		w.WriteHeader(http.StatusNotFound)
+		tpl.ExecuteTemplate(w, "error404.html", nil)
 		return
 	}
 
@@ -77,11 +78,10 @@ func (h* CarDetailHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	id := r.PathValue("id")
 	car, errCarModel := getCarModel(id)
-	//carsFound := append([]Car{}, car)
 	if errCarModel != nil {
-		log.Println(errCarModel)
-		w.WriteHeader(http.StatusInternalServerError)
-		tpl.ExecuteTemplate(w, "error.html", nil)
+		log.Println("failed to get car model")
+		w.WriteHeader(http.StatusNotFound)
+		tpl.ExecuteTemplate(w, "error404.html", nil)
 		return
 	}
 
@@ -118,7 +118,6 @@ func (h *CompareCarHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	if r.Method == "POST" {
 		r.ParseForm()
 		selectedIDs := r.Form["carIds"]
-		
 			for _, idStr := range selectedIDs {
 				carModel, err := getCarModel(idStr)
 				if err != nil {

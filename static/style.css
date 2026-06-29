@@ -209,11 +209,6 @@ body {
 .Search input[type="search"] {
     color: var(--color-text-primary);
 }
-.search_detail {
-    padding: 10px 14px;
-    font-size: 1em;
-    border-radius: 6px;
-}
 
 .search_detail input[type="search"] {
     padding: 10px 14px;
@@ -307,7 +302,7 @@ body {
 }
 
 .image-box {
-    width: 400px;
+    max-width: 400px;
     height: 200px;
     overflow: hidden;
 }
@@ -418,4 +413,31 @@ body {
 .error a:link{
 	color: var(--color-text-primary);
 	font-size: 1.2em;
+}
+@media (max-width: 600px) {
+    .car-border {
+        min-width: 90%;
+    }
+
+    .car-detail {
+        padding: 15px;
+        margin: 20px auto;
+    }
+    .border {
+        padding: 15px;
+        width: 95%;
+    }
+
+    .comparison-card {
+        flex: 1 1 100%;
+    }
+
+    .filter form {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .Search {
+        padding: 10px;
+    }
 }
